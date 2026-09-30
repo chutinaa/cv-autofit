@@ -2,15 +2,19 @@
 
 # cv-autofit
 
-**Fit any HTML résumé onto exactly one A4 page: margins, font size and spacing solved together, no words cut.**
+**Any HTML résumé, exactly one A4 page.**<br>
+Font size, margins and spacing solved together; no words cut, no empty half-page.
 
-Two things in this repo: **`lib/cv-autofit.js`**, a 13 KB dependency-free library you drop into your own HTML résumé, and **`cv_studio.html`**, a complete single-file editor built on it.
+[English](#english) · [中文](#中文) · [Demo page](demo/index.html) · [Editor](cv_studio.html)
 
-[English](#english) · [中文](#中文)
-
-![cv-autofit.js on a plain HTML résumé](docs/library_demo.png)
+<img src="docs/library_demo.png" alt="Too little or too much content, both fitted to one A4 page" width="680">
 
 </div>
+
+| | What | For whom |
+|---|---|---|
+| **`lib/cv-autofit.js`** | 13 KB, zero-dependency library. Two lines in your own HTML résumé. | You already have an HTML/CSS résumé and want it to fit one page. |
+| **`cv_studio.html`** | Complete single-file résumé editor built on the library (EN / 中 / FR, PDF & Word export). | You want a ready-made tool; nothing to install, nothing uploaded. |
 
 ---
 
@@ -51,7 +55,7 @@ The only contract is that your CSS reads its knobs from these variables (names c
 
 `fit()` returns `{fs, lh, mv, mh, mvt, sg, eg, bg, ols, pages, fallback, sparse, fitlog}`. Options worth knowing: `pages` (default 1), `pageHeight` (1123 px = A4 at 96 dpi), `range` (override the per-language knob ranges), `bullets` (selector for orphan handling, default `li`), `zoomEl` (element whose CSS `zoom` must be reset to 1 while measuring), `onApply(L)` (hook after every trial layout). No dependencies, ES5, works from `file://`. UMD, so `require()` works too.
 
-Try it: open [`demo/index.html`](demo/index.html) locally, a serif résumé that looks nothing like the editor's templates, and press *Fit to one page*. *Toggle extra sections* shows the sparse case (content too short: margins widen, leftover is distributed instead of leaving a gap at the bottom).
+Try it: open [`demo/index.html`](demo/index.html) locally, a serif résumé that looks nothing like the editor's templates, and press *Fit to one page*. Add `?content=short` for the sparse case (40% of the page empty: margins widen, leftover is distributed) or `?content=long` for the overflow case (spills onto page 2: font shrinks, orphan lines are fixed); `&fit=1` fits on load. That is how the image at the top was made.
 
 ### The editor: `cv_studio.html`
 
