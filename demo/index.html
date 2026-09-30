@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>cv-autofit demo — any HTML résumé, one page</title>
+<html lang="en"><head><meta charset="utf-8"><title>cv-autofit demo — any HTML resume, one page</title>
 <style>
-/* ===== demo chrome (not part of the résumé) ===== */
+/* ===== demo chrome (not part of the resume) ===== */
 body{margin:0;background:#e9ecef;font-family:system-ui,sans-serif;color:#222}
 .bar{position:sticky;top:0;background:#1d1d1f;color:#fff;padding:10px 18px;display:flex;gap:14px;align-items:center;font-size:14px;z-index:9}
 .bar button{background:#4f8ef7;color:#fff;border:0;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer}
@@ -13,7 +13,7 @@ body{margin:0;background:#e9ecef;font-family:system-ui,sans-serif;color:#222}
 .pageguide{position:absolute;left:0;right:0;top:1123px;border-top:2px dashed #e0524f;pointer-events:none}
 .pageguide span{position:absolute;right:8px;top:2px;color:#e0524f;font:12px system-ui;background:#fff}
 
-/* ===== the résumé: intentionally NOT the CV Studio look (serif, rules, small caps) =====
+/* ===== the resume: intentionally NOT the CV Studio look (serif, rules, small caps) =====
    The only contract with cv-autofit.js is the CSS variables below. */
 .page{
   --fs:13px;--lh:1.35;--mv:18mm;--mh:18mm;--mvt:16mm;--sg:18px;--eg:9px;--bg:2px;
@@ -62,6 +62,7 @@ body{margin:0;background:#e9ecef;font-family:system-ui,sans-serif;color:#222}
     <li>Automated a monthly regulatory report in R Markdown, saving roughly two analyst-days per month.</li>
   </ul>
 
+  <div id="proj">
   <h2>Selected projects</h2>
   <div class="job"><b>Open Transit Delay Explorer</b><span>2024</span></div>
   <ul>
@@ -71,6 +72,7 @@ body{margin:0;background:#e9ecef;font-family:system-ui,sans-serif;color:#222}
   <ul>
     <li>Internal tool that turns a test ID into a formatted readout with guard-rail metrics and power diagnostics; adopted by every squad running experiments.</li>
   </ul>
+  </div>
 
   <h2>Education</h2>
   <div class="job"><b>MSc Statistics, University of Warwick</b><span>2019 – 2020</span></div>
@@ -96,6 +98,24 @@ body{margin:0;background:#e9ecef;font-family:system-ui,sans-serif;color:#222}
     <li>Google Analytics 4 certification (2024); dbt Analytics Engineering certification (2023).</li>
   </ul>
   </div>
+  <div id="extra2" style="display:none">
+  <h2>Earlier experience</h2>
+  <div class="job"><b>Research Assistant, Bristol Economics Department</b><span>2018 – 2019</span></div>
+  <ul>
+    <li>Cleaned and merged household survey panels for a labour-market study; wrote the replication package in Stata and R that accompanied the published paper.</li>
+    <li>Ran robustness checks across 40 model specifications and summarised them in a two-page appendix used by the reviewers.</li>
+  </ul>
+  <div class="job"><b>Operations Intern, Tailspin Toys</b><span>Summer 2017</span></div>
+  <ul>
+    <li>Rebuilt the weekly stock report in Excel with pivot tables and lookups, cutting preparation time from a day to an hour.</li>
+    <li>Surveyed 120 store managers about the ordering process and presented findings to the head of operations.</li>
+  </ul>
+  <h2>Awards</h2>
+  <ul>
+    <li>Best dissertation prize, Warwick Statistics (2020); Dean's list, Bristol (2017, 2018, 2019).</li>
+    <li>Winner, Northwind internal hackathon 2024, for a real-time experiment health monitor.</li>
+  </ul>
+  </div>
 </div><div class="pageguide"><span>A4 page boundary (1123px)</span></div></div></div>
 
 <script src="../lib/cv-autofit.js"></script>
@@ -112,6 +132,7 @@ function reset(){['--fs','--lh','--mv','--mh','--mvt','--sg','--eg','--bg'].forE
   out.textContent='standard layout: '+Math.ceil(page.scrollHeight/1123)+' pages';}
 document.getElementById('fit').onclick=run;document.getElementById('less').onclick=function(){var e=document.getElementById('extra');e.style.display=e.style.display==='none'?'':'none';reset();};document.getElementById('reset').onclick=reset;
 var s=document.createElement('style');s.id='printcss';document.head.appendChild(s);
-if(location.search.indexOf('fit=1')>=0)run();else reset();
+var q=location.search;if(q.indexOf('content=short')>=0){document.getElementById('extra').style.display='none';document.getElementById('proj').style.display='none';}if(q.indexOf('content=long')>=0)document.getElementById('extra2').style.display='';
+if(q.indexOf('fit=1')>=0)run();else reset();
 </script>
 </body></html>
