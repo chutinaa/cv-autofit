@@ -2,7 +2,7 @@
 
 # cv-autofit
 
-**Any HTML résumé, exactly one A4 page.**<br>
+**Any HTML resume, exactly one A4 page.**<br>
 Font size, margins and spacing solved together; no words cut, no empty half-page.
 
 [English](#english) · [中文](#中文)
