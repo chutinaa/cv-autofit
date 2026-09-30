@@ -13,8 +13,8 @@ Font size, margins and spacing solved together; no words cut, no empty half-page
 
 | | What | For whom |
 |---|---|---|
-| **`lib/cv-autofit.js`** | 13 KB, zero-dependency library. Two lines in your own HTML résumé. | You already have an HTML/CSS résumé and want it to fit one page. |
-| **`cv_studio.html`** | Complete single-file résumé editor built on the library (EN / 中 / FR, PDF & Word export). | You want a ready-made tool; nothing to install, nothing uploaded. |
+| **`lib/cv-autofit.js`** | 13 KB, zero-dependency library. Two lines in your own HTML resume. | You already have an HTML/CSS resume and want it to fit one page. |
+| **`cv_studio.html`** | Complete single-file resume editor built on the library (EN / 中 / FR, PDF & Word export). | You want a ready-made tool; nothing to install, nothing uploaded. |
 
 ---
 
@@ -27,14 +27,14 @@ flowchart LR
     subgraph lib["lib/cv-autofit.js (the algorithm)"]
         A[measure DOM at 100% zoom] --> B[solve t / margin×font cost / scale k] --> C[orphan pass + regrow] --> D[distribute leftover] --> E[write CSS variables<br/>--fs --lh --mvt --mh --mv --sg --eg --bg]
     end
-    Y[Your own HTML résumé<br/>reads those variables] --> lib
+    Y[Your own HTML resume<br/>reads those variables] --> lib
     S[cv_studio.html editor<br/>3 languages × templates, JSON, PDF/Word] --> lib
     lib --> P[exactly one A4 page]
 ```
 
 ### The library: `lib/cv-autofit.js`
 
-You already have an HTML résumé (JSON Resume theme, a LaTeX-to-HTML export, your own hand-written page). It runs a few lines long, or leaves a lonely third of a page empty. Two lines fix that:
+You already have an HTML resume (JSON Resume theme, a LaTeX-to-HTML export, your own hand-written page). It runs a few lines long, or leaves a lonely third of a page empty. Two lines fix that:
 
 ```html
 <script src="cv-autofit.js"></script>
@@ -55,16 +55,16 @@ The only contract is that your CSS reads its knobs from these variables (names c
 
 `fit()` returns `{fs, lh, mv, mh, mvt, sg, eg, bg, ols, pages, fallback, sparse, fitlog}`. Options worth knowing: `pages` (default 1), `pageHeight` (1123 px = A4 at 96 dpi), `range` (override the per-language knob ranges), `bullets` (selector for orphan handling, default `li`), `zoomEl` (element whose CSS `zoom` must be reset to 1 while measuring), `onApply(L)` (hook after every trial layout). No dependencies, ES5, works from `file://`. UMD, so `require()` works too.
 
-Try it: open [`demo/index.html`](demo/index.html) locally, a serif résumé that looks nothing like the editor's templates, and press *Fit to one page*. Add `?content=short` for the sparse case (40% of the page empty: margins widen, leftover is distributed) or `?content=long` for the overflow case (spills onto page 2: font shrinks, orphan lines are fixed); `&fit=1` fits on load. That is how the image at the top was made.
+Try it: open [`demo/index.html`](demo/index.html) locally, a serif resume that looks nothing like the editor's templates, and press *Fit to one page*. Add `?content=short` for the sparse case (40% of the page empty: margins widen, leftover is distributed) or `?content=long` for the overflow case (spills onto page 2: font shrinks, orphan lines are fixed); `&fit=1` fits on load. That is how the image at the top was made.
 
 ### The editor: `cv_studio.html`
 
-CV Studio is a résumé editor that lives in **one HTML file** (`cv_studio.html`, ~90 KB, zero dependencies).
+CV Studio is a resume editor that lives in **one HTML file** (`cv_studio.html`, ~90 KB, zero dependencies).
 Download it, double-click it, and it opens in your browser. Everything you type stays in your browser's `localStorage`; nothing is uploaded anywhere.
 
 Its one real trick is **autofit**: press one button and the page finds the largest font size, the most balanced margins and the most even spacing that still keep your content on **exactly one page**, without cutting a single word.
 
-> The interface is in Chinese. The résumé content it produces can be in English, Chinese or French (3 to 4 templates each).
+> The interface is in Chinese. The resume content it produces can be in English, Chinese or French (3 to 4 templates each).
 
 ![Before / after autofit](docs/before_after.png)
 
@@ -89,12 +89,12 @@ The bundled sample is a fictional 4th-year medical student applying for a resear
 | **Multiple versions per language** | e.g. "RA", "PhD", "Industry", each with its own layout; rename / duplicate / delete. |
 | **Export** | PDF (A4 or long page), Word `.doc`, JSON (single version or everything, for moving between computers). Import JSON back. |
 | **ATS-safe** | Plain HTML text, standard fonts, no tables or text boxes. Bold labels inside bullets (`Label: text` or `【标签】text`) are rendered automatically. |
-| **Photo (optional)** | Top-right photo for Chinese résumés; height snaps to the first section rule; drag to resize. |
+| **Photo (optional)** | Top-right photo for Chinese resumes; height snaps to the first section rule; drag to resize. |
 | **Privacy** | Data never leaves the browser. Delete the file and clear site data and it is gone. |
 
 ### How autofit works
 
-The problem: résumé content is discrete (lines wrap, sections can't be split) but the knobs are continuous (margins, font size, spacing). Naive approaches either shrink the font until it is unreadable or leave a lonely half-page.
+The problem: resume content is discrete (lines wrap, sections can't be split) but the knobs are continuous (margins, font size, spacing). Naive approaches either shrink the font until it is unreadable or leave a lonely half-page.
 
 CV Studio treats it as a small constrained optimisation, solved in layers. All measurements are taken at 100 % preview zoom, because browser zoom changes where lines wrap and would make the screen disagree with the PDF.
 
@@ -140,7 +140,7 @@ python make_public.py --src path/to/your_private.html --out cv_studio.html
 
 ### Background
 
-Built by a non-engineer with AI coding assistants over several evenings, originally as a personal tool for keeping Chinese, English and French résumés in sync. The autofit part grew out of frustration with "shrink to 9 pt" being the only option anywhere else.
+Built by a non-engineer with AI coding assistants over several evenings, originally as a personal tool for keeping Chinese, English and French resumes in sync. The autofit part grew out of frustration with "shrink to 9 pt" being the only option anywhere else.
 
 Issues and PRs welcome. The whole program is one file, so read it top to bottom.
 
