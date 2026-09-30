@@ -2,10 +2,10 @@
 
 # cv-autofit
 
-**Any HTML resume, exactly one A4 page.**<br>
+**Any HTML résumé, exactly one A4 page.**<br>
 Font size, margins and spacing solved together; no words cut, no empty half-page.
 
-[English](#english) · [中文](#中文) · [Demo page](demo/index.html) · [Editor](cv_studio.html)
+[English](#english) · [中文](#中文)
 
 <img src="docs/library_demo.png" alt="Too little or too much content, both fitted to one A4 page" width="680">
 
