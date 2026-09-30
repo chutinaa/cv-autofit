@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CV Studio</title>
+<style>
+/* ---------- App shell ---------- */
+*{box-sizing:border-box;}
+body{margin:0;background:#ffffff;font-family:"Microsoft YaHei","Segoe UI",sans-serif;font-size:13px;color:#222;}
+.topbar{position:sticky;top:0;z-index:50;background:#eef6fc;color:#2f4b62;border-bottom:1px solid #cfe3f1;display:flex;align-items:center;gap:8px;padding:8px 14px;flex-wrap:nowrap;white-space:nowrap;overflow:visible;}
+.topbar select.menu{background:#f4f9fd;color:#4a6a84;cursor:pointer;}
+.topbar .brand{font-weight:bold;font-size:15px;margin-right:6px;}
+.tabs{display:flex;gap:4px;}
+.tabs button{background:#f4f9fd;color:#4a6a84;border:1px solid #bcd7ea;border-radius:999px;padding:3px 9px;cursor:pointer;font-size:11.5px;line-height:1.3;min-width:34px;}
+.tabs button.on{background:#6fb3e0;color:#fff;border-color:#6fb3e0;font-weight:bold;}
+.topbar select{padding:5px 8px;border-radius:6px;border:1px solid #bcd7ea;background:#fff;color:#2f4b62;font-size:13px;}
+.topbar .mini.tb{background:#f4f9fd;color:#4a6a84;border:1px solid #bcd7ea;padding:4px 8px;}
+.topbar .grow{flex:1;}
+#verSel{max-width:170px;}.dd{position:relative;}
+.dd .ddb{background:#f4f9fd;color:#4a6a84;border:1px solid #bcd7ea;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:13px;}
+.dd .ddb.primary{background:#6fb3e0;color:#fff;border-color:#6fb3e0;font-weight:bold;padding:6px 14px;}
+.dd .ddm{display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:160px;background:#fff;border:1px solid #cfe3f1;border-radius:8px;box-shadow:0 6px 18px rgba(47,75,98,.15);padding:4px;z-index:60;white-space:nowrap;}
+.dd .ddm.right{left:auto;right:0;}
+.dd.open .ddm{display:block;}
+.dd .ddm div{padding:7px 12px;border-radius:5px;cursor:pointer;color:#2f4b62;font-size:13px;}
+.dd .ddm div:hover{background:#eaf4fb;}
+.dd .ddm div.warn{color:#c0392b;}#presetSel{min-width:110px;}
+.topbar button.act{background:#6fb3e0;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:13px;}
+.topbar button.act.gray{background:#9dbdd3;}
+.pageinfo{font-size:12px;color:#5f7d95;overflow:hidden;text-overflow:ellipsis;min-width:0;flex-shrink:1;}
+.wrap{display:flex;gap:18px;padding:16px;align-items:flex-start;}
+@media (max-width:1180px){.wrap{flex-direction:column;}.editor{width:100%!important;max-height:none!important;position:static!important;}}
+
+/* ---------- Editor ---------- */
+.editor{width:430px;flex-shrink:0;background:#ffffff;border:1px solid #d7e6f1;border-radius:10px;padding:14px;max-height:calc(100vh - 76px);overflow-y:auto;position:sticky;top:60px;}
+.editor h3{margin:4px 0 8px;font-size:14px;color:#3d5a72;border-bottom:1px solid #d7e6f1;padding-bottom:5px;}
+.fld{margin-bottom:6px;}
+.fld label{display:block;font-size:11px;color:#888;margin-bottom:2px;}
+.fld select{width:100%;padding:5px 7px;border:1px solid #cfe0ec;border-radius:5px;font-size:12.5px;}
+.fld input,.fld textarea{width:100%;padding:5px 7px;border:1px solid #cfe0ec;border-radius:5px;font-size:12.5px;font-family:inherit;}
+.fld textarea{resize:vertical;line-height:1.5;}
+.sec{border:1px solid #e9e2d0;border-radius:8px;padding:10px;margin-bottom:10px;background:#fbf9f1;}
+.sec .sechead{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.sec .sechead input{flex:1;font-weight:bold;}
+.mini{background:#f1f7fb;border:1px solid #c9dfee;border-radius:5px;padding:2px 8px;cursor:pointer;font-size:12px;color:#3d5a72;}
+.mini:hover{background:#e0eff9;}
+.mini.warn{color:#b3261e;}
+.entry{border:1px dashed #d8d0bc;border-radius:6px;padding:8px;margin-bottom:8px;background:#fff;}
+.entry .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.namephoto{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;}
+.photobox{display:flex;gap:8px;align-items:center;}
+.photobox img{width:36px;height:50px;object-fit:cover;border:1px solid #ccc;}
+.photobox .noph{width:36px;height:50px;border:1px dashed #ccc;display:inline-flex;align-items:center;justify-content:center;color:#aaa;font-size:11px;}
+.brow{border:1px solid #e9e2d0;border-radius:6px;padding:6px 6px 4px;margin-bottom:6px;background:#fffdf6;}
+.brhead{display:flex;gap:4px;margin-bottom:4px;}
+.lnum{font-size:11px;color:#888;min-width:36px;text-align:right;align-self:center;white-space:nowrap;}.lnum.orph{color:#c33;font-weight:700;}
+.brhead input{flex:1;padding:4px 6px;border:1px solid #cfe0ec;border-radius:5px;font-size:12px;font-weight:600;}
+.brow textarea{width:100%;padding:4px 6px;border:1px solid #cfe0ec;border-radius:5px;font-size:12px;font-family:inherit;resize:vertical;line-height:1.45;}
+.crow{display:grid;grid-template-columns:1.1fr 1.4fr auto auto;gap:4px;margin-bottom:4px;}
+.crow input{padding:4px 6px;border:1px solid #cfe0ec;border-radius:5px;font-size:12px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;}
+.grid4 input{padding:4px 5px;}
+.sec.locked{border-color:#c9dfee;background:#f4f9fd;}
+.entry .ebtns{display:flex;gap:6px;justify-content:flex-end;margin-top:4px;}
+.addrow{display:flex;gap:8px;margin:4px 0 14px;}
+.hint{font-size:11px;color:#999;margin:2px 0 8px;}
+
+/* ---------- Preview ---------- */
+.pvwrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;background:#eef6fc;border-radius:10px;padding:12px 12px 24px;align-self:stretch;}
+.pvscroll{overflow-x:auto;max-width:100%;}
+.zoombar{position:sticky;top:50px;z-index:40;display:flex;gap:4px;align-items:center;background:#ffffff;border:1px solid #d7e6f1;border-radius:999px;padding:3px 6px 3px 10px;font-size:12px;color:#3d5a72;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.zoombar button{background:#f1f7fb;border:1px solid #c9dfee;border-radius:999px;padding:2px 9px;cursor:pointer;font-size:12px;color:#3d5a72;line-height:1.3;}
+.zoombar button:hover{background:#e0eff9;}.zoombar button.on{background:#6fb3e0;border-color:#6fb3e0;color:#fff;font-weight:bold;}
+.zoombar .pct{min-width:42px;text-align:center;font-weight:bold;}
+.page[lang="fr"]{hyphens:auto;-webkit-hyphens:auto;}
+.page{width:210mm;background:#fff;/* 与打印纸宽完全一致(793.7px)，否则中文按字折行时0.3px的差异就会多出一行 */box-shadow:0 2px 10px rgba(0,0,0,.2);position:relative;
+  --mv:19mm;--mh:21mm;--fs:13px;--lh:1.38;--sg:20px;--eg:12px;--bg:2px;--ph:30mm;
+  padding:var(--mvt,var(--mv)) var(--mh) var(--mv) var(--mh)!important;font-size:var(--fs)!important;line-height:var(--lh)!important;}
+.page h2{margin:var(--sg) 0 calc(var(--sg)*0.35)!important;}
+.page ul{margin:.15em 0 var(--eg)!important;}
+.page.cn ul,.page.cn2 ul,.page.classic ul{margin:.08em 0 var(--eg)!important;}
+.page li{margin-bottom:var(--bg)!important;text-wrap:pretty;}
+.page .name{font-size:calc(var(--fs)*1.9)!important;line-height:1.1!important;letter-spacing:.03em;}
+.page h2{font-size:calc(var(--fs)*var(--h2r,1))!important;}
+.page.fin{--h2r:1;} .page.tech{--h2r:1.15;} .page.cn,.page.cn2{--h2r:1.15;} .page.fr,.page.fr2,.page.fr3{--h2r:1.15;} .page.classic{--h2r:1.15;}
+.page .tagline{font-size:calc(var(--fs)*0.95)!important;margin-top:.45em!important;}
+.page .sub,.page .row .r{font-size:calc(var(--fs)*0.96)!important;}
+.page .row2{font-weight:bold;}.page.cn .row2,.page.cn2 .row2{font-weight:bold;}
+.page .row .r,.page .sub .r{white-space:nowrap;padding-left:.9em;padding-right:.08em;}/* 斜体末字母出格被打印裁切，留一点点 */
+.page.fin .sub,.page.fin .row .r{font-size:calc(var(--fs)*1.0)!important;}
+.page .contact{font-size:calc(var(--fs)*0.93)!important;line-height:1.2!important;margin:.7em 0 0!important;}
+.page .tagline+.contact{margin-top:.35em!important;}
+/* 中文1保持原页眉比例 */
+.page.cn0 .name{font-size:calc(var(--fs)*1.62)!important;letter-spacing:normal;}
+.page.cn0 .tagline{font-size:calc(var(--fs)*1.0)!important;margin-top:.1em!important;}
+/* 中文姓名仅三字，中文2/3加字距 */
+.page.cn .name,.page.cn2 .name{letter-spacing:.06em;}
+/* 联系方式层级色统一 */
+.page.en0 .contact,.page.fr0 .contact,.page.cn .contact{color:#444;}
+.page .hdr+h2{margin-top:calc(var(--sg)*0.45)!important;}
+.pagemark{position:absolute;left:0;right:0;border-top:1.5px dashed #e05252;pointer-events:none;}
+.pagemark::after{content:attr(data-t);position:absolute;right:4px;top:-16px;font-size:10px;color:#e05252;background:#fff;padding:0 4px;}
+
+/* ---------- Preset: fin ---------- */
+.page.fin{--ffd:"Times New Roman",Times,serif;padding:56px 64px;font-family:var(--ff,var(--ffd));color:#111;font-size:13px;line-height:1.38;}
+.fin .name{text-align:center;font-size:21px;font-weight:bold;letter-spacing:.03em;}
+.fin .tagline{text-align:center;font-size:13px;color:#333;margin-top:.15em;}
+.fin .contact{text-align:center;font-size:12px;margin-top:.3em;color:#222;}
+.fin h2{font-size:13px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1.2px solid #111;padding-bottom:.15em;margin:20px 0 8px;font-weight:bold;}
+.fin .row{display:flex;justify-content:space-between;font-weight:bold;}
+.fin .row .r{font-weight:normal;font-style:italic;}
+.fin .sub{display:flex;justify-content:space-between;font-style:italic;margin-bottom:.15em;}
+.fin ul{margin:2px 0 12px;padding-left:1.4em;}
+.fin li{margin-bottom:.15em;}
+
+/* ---------- Preset: tech ---------- */
+.page.tech{--ffd:Calibri,Arial,sans-serif;padding:48px 56px;font-family:var(--ff,var(--ffd));color:#1a1a1a;font-size:13.5px;line-height:1.42;}
+.tech .name{font-size:24px;font-weight:bold;}
+.tech .tagline{font-size:13.5px;color:#555;}
+.tech .contact{font-size:12.5px;color:#444;margin:.25em 0 .15em;}
+.tech h2{font-size:14px;color:#0b57a4;text-transform:uppercase;letter-spacing:.03em;margin:18px 0 6px;border-bottom:1.5px solid #0b57a4;padding-bottom:.15em;}
+.tech .row{display:flex;justify-content:space-between;font-weight:bold;}
+.tech .row .r{font-weight:normal;color:#555;}
+.tech .sub{display:flex;justify-content:space-between;font-style:italic;color:#333;margin-bottom:.15em;}
+.tech ul{margin:2px 0 10px;padding-left:1.4em;}
+.tech li{margin-bottom:.15em;}
+
+/* ---------- Preset: classic (经典版本1 · 原版排法) ---------- */
+.page.cn0{--ffd:"Microsoft YaHei","PingFang SC",sans-serif;} .page.en0,.page.fr0{--ffd:Arial,Helvetica,sans-serif;}
+.page.en0,.page.cn0,.page.fr0{padding:40px 50px;font-family:var(--ff,var(--ffd));color:#111;font-size:13px;line-height:1.5;}
+.classic .name{font-size:22px;font-weight:bold;text-align:center;}
+.classic .tagline{font-size:13px;color:#111;text-align:center;margin-top:.1em;}
+.classic .contact{font-size:13px;color:#111;text-align:center;margin:.2em 0 .1em;}
+.classic .contact a{color:#0563c1;text-decoration:underline;}
+.classic h2{font-size:15px;font-weight:bold;margin:12px 0 4px;padding-bottom:.05em;border-bottom:1.5px solid #111;}
+.classic .row{display:flex;justify-content:space-between;font-weight:bold;}
+.classic .row .r{font-weight:bold;white-space:nowrap;padding-left:.9em;}
+.classic .sub{display:flex;justify-content:space-between;color:#111;margin-bottom:.1em;}
+.classic ul{margin:0 0 3px;padding-left:0;list-style:none;}
+.classic li{margin-bottom:0;}
+.classic li::before{content:"● ";font-size:.85em;}
+.classic .lb{font-weight:bold;} .classic .lb.lbk{font-weight:normal;}
+/* 经典骨架修正（en0/cn0/fr0）：只有机构名粗，职位/日期常规，bullet 悬挂缩进 + 轻圆点 */
+.page.classic .row{font-weight:normal;}
+.page.classic .row .r{font-weight:normal;color:#444;}
+.page.classic .row2{font-weight:normal;}
+.page.classic ul{padding-left:1.05em;}
+.page.classic li{text-indent:-1.05em;}
+.page.classic li::before{content:"\2022\00a0";font-size:1em;}
+/* EN1 经典：藏青强调色（原 EN5 已并入） */
+.page.en0,.page.fr0{--ac:#1f3a5f;}
+.en0 .name,.fr0 .name{color:var(--ac);}
+.en0 h2,.fr0 h2{color:var(--ac);border-bottom-color:var(--ac);}
+.en0 .contact a,.fr0 .contact a{color:var(--ac);}
+.en0 li::before,.fr0 li::before{color:var(--ac);}
+.classic .photo{border:none;}
+.page.classic .hdr.hasphoto{padding-left:calc(var(--phpad,var(--ph))*0.72 + 6mm);}
+
+/* ---------- Preset: cn (浅底色标题·居中表头) ---------- */
+.page.cn{--ffd:"Microsoft YaHei","PingFang SC",sans-serif;padding:52px 60px;font-family:var(--ff,var(--ffd));color:#111;font-size:13px;line-height:1.5;}
+.cn .name{font-size:22px;font-weight:bold;text-align:center;}
+.cn .tagline{font-size:13px;color:#333;text-align:center;margin-top:.15em;}
+.cn .contact{font-size:12.5px;color:#111;text-align:center;margin:.25em 0;}
+.cn .contact a{color:#0563c1;text-decoration:underline;}
+.cn h2{font-size:15px;font-weight:bold;color:#1f3a5f;background:#e9eff6;border-left:4px solid #1f3a5f;padding:.18em .7em;margin:14px 0 6px;line-height:1.25;}
+.cn .row{display:flex;justify-content:space-between;font-weight:bold;}
+.cn .row .r{font-weight:normal;color:#444;white-space:nowrap;padding-left:.9em;}
+.cn .sub{display:flex;justify-content:space-between;color:#333;font-size:12.5px;margin-bottom:.15em;}
+.cn ul{margin:1px 0 4px;padding-left:0;list-style:none;}
+.cn li{margin-bottom:1px;}
+.cn li::before{content:"● ";font-size:0.75em;position:relative;top:-1px;}
+.cn .lb{font-weight:bold;}
+.cn .photo{border:none;}
+
+/* ---------- Preset: cn2 (藏青细线·Typst开源风) ---------- */
+.page.cn2{--ffd:"Microsoft YaHei","PingFang SC",sans-serif;padding:52px 60px;font-family:var(--ff,var(--ffd));color:#111;font-size:13px;line-height:1.5;}
+.cn2 .hdr{display:block;}
+.cn2 .name{font-size:22px;font-weight:bold;color:#284967;}
+.cn2 .tagline{font-size:13px;color:#444;margin-top:.15em;}
+.cn2 .contact{font-size:12.5px;color:#444;margin-top:.35em;text-align:left;}
+.cn2 .contact a{color:#284967;}
+.cn2 h2{font-size:15px;font-weight:bold;color:#284967;margin:14px 0 6px;padding-bottom:.1em;border-bottom:1.5px solid #284967;}
+.cn2 .row{display:flex;justify-content:space-between;font-weight:bold;}
+.cn2 .row .r{font-weight:normal;color:#444;font-size:12.5px;white-space:nowrap;padding-left:.9em;}
+.cn2 .lb{color:#111;}
+.cn2 ul{margin:1px 0 4px;padding-left:1.4em;}
+.cn2 li{margin-bottom:.15em;}
+.cn2 .lb{font-weight:bold;}
+
+/* ---------- Preset: fr ---------- */
+.page.fr{--ffd:Arial,Helvetica,sans-serif;padding:52px 60px;font-family:var(--ff,var(--ffd));color:#111;font-size:13px;line-height:1.45;}
+.fr .name{font-size:22px;font-weight:bold;}
+.fr .tagline{font-size:14px;color:#555;margin:.15em 0;}
+.fr .contact{font-size:12px;color:#444;margin-bottom:.3em;}
+.fr h2{font-size:13.5px;text-transform:uppercase;letter-spacing:.04em;color:#111;border-bottom:1.2px solid #111;padding-bottom:.15em;margin:18px 0 8px;}
+.fr .row{display:flex;justify-content:space-between;font-weight:bold;}
+.fr .row .r{font-weight:normal;color:#555;}
+.fr .sub{display:flex;justify-content:space-between;font-style:italic;color:#333;margin-bottom:.15em;}
+.fr ul{margin:2px 0 12px;padding-left:1.4em;}
+.fr li{margin-bottom:.15em;}
+
+/* ---------- Preset: fr2 (法语经典·日期左栏) ---------- */
+.page.fr2{--ffd:Arial,Helvetica,sans-serif;--h2r:1.15;padding:52px 60px;font-family:var(--ff,var(--ffd));color:#222;font-size:13px;line-height:1.4;}
+.page.fr2{--ac:#1f3a5f;--acl:#cfd6df;--h2bg:#e9eef5;--h2fg:#1f3a5f;}
+.page.fr3{--ac:#3d3d3d;--acl:#d0d0d0;--h2bg:#3d3d3d;--h2fg:#fff;}
+.fr2 .name{font-size:22px;font-weight:bold;color:var(--ac);}
+.fr2 .tagline{font-weight:bold;color:var(--ac);margin:.15em 0;}
+.fr2 .contact{color:#444;margin-bottom:.3em;}
+.fr2 h2{text-transform:uppercase;letter-spacing:.05em;color:var(--h2fg);background:var(--h2bg);padding:.18em .6em;border:none;margin:18px 0 8px;font-weight:bold;}
+/* 时间轴：左栏 年份/月份 两行叠放，中间圆点+竖线，右侧正文 */
+.fr2 .entryblk{position:relative;padding-left:calc(var(--dtw,4.4em) + 16px + .6em);}
+.fr2 .entryblk:before{content:"";position:absolute;left:calc(var(--dtw,4.4em) + 7px);top:.35em;bottom:0;border-left:1.5px solid var(--acl);}
+.fr2 .row{display:block;}
+.fr2 .row .dt{position:absolute;left:0;width:var(--dtw,4.4em);text-align:right;color:var(--ac);font-weight:bold;white-space:nowrap;font-size:.85em;line-height:1.25;padding-top:.15em;}
+.fr2 .row .dt small{display:block;font-weight:normal;font-size:1em;color:#666;}
+.fr2 .row .dt:after{content:"";position:absolute;right:-13px;top:.45em;width:8px;height:8px;border-radius:50%;background:var(--ac);}
+.fr2 .row .bd b{color:#111;}
+.fr2 .row .bd .loc{color:#666;}
+.fr2 ul{margin:.15em 0 12px;padding-left:1.1em;}
+.fr2 li{margin-bottom:2px;}
+.fr2 .lb{font-weight:bold;color:var(--ac);}
+/* header w/ photo + summary */
+.page .hdr.hasphoto{padding-right:calc(var(--phpad,var(--ph))*0.72 + 6mm);box-sizing:border-box;}
+.page.fin .hdr.hasphoto,.page.cn .hdr.hasphoto{padding-left:calc(var(--phpad,var(--ph))*0.72 + 6mm);}
+.page .photo{position:absolute;right:var(--mh);top:calc(var(--mvt,var(--mv)) + var(--phtop,0mm));height:var(--ph);width:calc(var(--ph)*0.72);object-fit:cover;border:1px solid #bbb;cursor:nwse-resize;user-select:none;-webkit-user-drag:none;z-index:2;}
+@media print{.page .photo{border-width:1px;}}
+@media print{.page .photo{right:0;top:var(--phtop,0mm);}}
+.page .summary{margin-top:.3em;text-align:justify;}
+.fin .summary{font-size:calc(var(--fs)*0.96);}
+/* shared preview blocks */
+.page .entryblk{page-break-inside:avoid;}
+.page .lb{font-weight:bold;}
+
+/* ---------- Print ---------- */
+@media print{
+  body{background:#fff;}
+  .topbar,.editor,.pageinfo2,.pagemark,.zoombar{display:none!important;}
+  .wrap{padding:0;display:block;}
+  .pvwrap{display:block;padding:0!important;background:none!important;border-radius:0;}
+  .pvscroll{overflow:visible;zoom:1!important;}
+  .page{width:auto;box-shadow:none;padding:0!important;min-height:0!important;}
+}
+</style>
+<style id="printPage">@page{size:A4;margin:19mm 21mm;}</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">CV Studio</span>
+  <div class="tabs" id="langTabs"></div>
+  <select id="verSel" title="版本"></select>
+  <div class="dd" id="verAct"><button class="ddb" type="button">版本 ▾</button><div class="ddm"><div data-v="new">＋ 复制为新版本</div><div data-v="ren">改名</div><div data-v="del" class="warn">删除当前版本</div></div></div>
+  <select id="presetSel"></select>
+  <span class="pageinfo" id="pageInfo"></span>
+  <div class="grow"></div>
+  <div class="dd" id="expAct"><button class="ddb primary" type="button">导出 ▾</button><div class="ddm right"><div data-v="pdf_a4">PDF · A4分页</div><div data-v="pdf_long">PDF · 长页（按内容裁）</div><div data-v="word">Word（.doc）</div><div data-v="json">JSON · 当前版本</div><div data-v="json_all">JSON · 全部（换电脑迁移用）</div></div></div>
+  <button class="act gray" id="btnImport" title="从JSON备份恢复">导入JSON</button>
+  <button id="btnWord" style="display:none"></button><button id="btnPdf" style="display:none"></button>
+  <input type="file" id="fileImport" accept=".json" style="display:none">
+  <input type="file" id="filePhoto" accept="image/*" style="display:none">
+</div>
+<div class="wrap">
+  <div class="editor" id="editor"></div>
+  <div class="pvwrap">
+    <div class="zoombar" id="zoombar" title="只缩放右侧预览，不影响导出"><span>预览</span><button type="button" data-z="-">－</button><span class="pct" id="zoomPct">100%</span><button type="button" data-z="+">＋</button><button type="button" data-z="100">100%</button><button type="button" data-z="fit">整页</button></div>
+    <div class="pvscroll" id="pvscroll"><div id="page" class="page fin"></div></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ================= state ================= */
+var LS_KEY="cvStudio_public_v1";
+var LANGS=[{id:"en",label:"EN"},{id:"cn",label:"中"},{id:"fr",label:"FR"}];
+var PRESET_LABEL={en0:"EN1 经典",fin:"EN2 金融",tech:"EN3 大厂",cn0:"中文1 经典",cn:"中文2 浅底标题",cn2:"中文3 藏青细线",fr0:"FR1 经典",fr:"FR2 简约",fr2:"FR3 时间轴·蓝",fr3:"FR4 时间轴·炭灰",en4:"EN4 时间轴"};
+var LANG_PRESETS={en:["en0","fin","tech","en4"],cn:["cn0","cn","cn2"],fr:["fr0","fr","fr2","fr3"]};
+var CLASSIC={en0:1,cn0:1,fr0:1};
+function renderPresetSel(){var sel=document.getElementById("presetSel"),p=curPreset();sel.innerHTML=LANG_PRESETS[state.lang].map(function(k){return '<option value="'+k+'"'+(k===p?" selected":"")+'>'+PRESET_LABEL[k]+'</option>';}).join("");}
+var LAYOUT_DEFAULT={mv:18,mh:20,fs:13,lh:1.38,sg:18,eg:10,bg:2,ph:22,ff:""};
+var FONT_CN='"Microsoft YaHei","PingFang SC",sans-serif',FONT_LATIN={fin:'"Times New Roman",Times,serif',tech:'Calibri,Arial,sans-serif',cn:'Arial,Helvetica,sans-serif',cn2:'Arial,Helvetica,sans-serif',fr:'Arial,Helvetica,sans-serif',fr2:'Arial,Helvetica,sans-serif',fr3:'Arial,Helvetica,sans-serif',en0:'Arial,Helvetica,sans-serif',fr0:'Arial,Helvetica,sans-serif',cn0:'Arial,Helvetica,sans-serif',en4:'Arial,Helvetica,sans-serif'};
+function defaultFont(p,lang){return lang==="cn"?FONT_CN:(FONT_LATIN[p]||FONT_LATIN.tech);}
+function effFont(L,p,lang){return L.ff||defaultFont(p,lang);}
+var FONTS=[["","预设默认"],["\"Times New Roman\",Times,serif","Times New Roman（金融最主流）"],["Garamond,\"EB Garamond\",serif","Garamond"],["Georgia,serif","Georgia"],["Cambria,serif","Cambria"],["Calibri,Arial,sans-serif","Calibri（英文大厂常用；字面偏小）"],["Arial,Helvetica,sans-serif","Arial（法语CV首选/通用）"],["\"Microsoft YaHei\",sans-serif","微软雅黑（中文）"]];
+var LAYOUT_QUICK={tight:{mv:7,mh:11,fs:11.5,lh:1.22,sg:7,eg:3,bg:0},compact:{mv:12,mh:14,fs:12,lh:1.3,sg:12,eg:6,bg:1},standard:LAYOUT_DEFAULT,loose:{mv:22,mh:24,fs:13.5,lh:1.5,sg:22,eg:14,bg:3}};
+var LAYOUT_FIELDS=[["mv","上下边距mm",1],["mh","左右边距mm",1],["fs","字号px",0.5],["lh","行距",0.02],["sg","章节间距px",1],["eg","条目间距px",1],["bg","bullet间距px",0.5],["phm","照片高mm（0=自动贴横线）",0.5]];
+function layoutOf(d){if(!d.layout)d.layout=Object.assign({},LAYOUT_DEFAULT);if(d.layout.ph==null||d.layout.ph>30)d.layout.ph=26;if(d.layout.phm==null)d.layout.phm=0;return d.layout;}
+var PAGE_H=1123;
+
+function defaultDocs(){
+ return {
+ "en_ra": {
+  "name": "Léa Martin",
+  "tagline": "",
+  "layout": {
+   "mv": 18,
+   "mh": 20,
+   "fs": 13,
+   "lh": 1.38,
+   "sg": 18,
+   "eg": 10,
+   "bg": 2,
+   "ph": 22,
+   "ff": ""
+  },
+  "sections": [
+   {
+    "title": "Education",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "XX University — School of Medicine",
+      "loc": "",
+      "role": "MD Programme, 4th year (DFASM1) | Elective track: Clinical Research Methods",
+      "dates": "2022 – Present",
+      "bullets": [
+       "Core courses: Biostatistics | Epidemiology | Neurology | Internal Medicine | Evidence-Based Medicine | Research Ethics (GCP certified)"
+      ]
+     },
+     {
+      "org": "XX High School",
+      "loc": "",
+      "role": "Baccalauréat Scientifique, mention Très Bien (17.6/20)",
+      "dates": "2019 – 2022",
+      "bullets": []
+     }
+    ]
+   },
+   {
+    "title": "Research Experience",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "XX Neuroscience Institute — Sleep & Cognition Lab",
+      "loc": "",
+      "role": "Student Research Assistant (part-time)",
+      "dates": "Sep 2025 – Present",
+      "bullets": [
+       "Cohort Data Management: Maintained a REDCap database for a 240-participant longitudinal sleep cohort, wrote data-quality rules that flagged 3.1% of entries for review and cut monthly cleaning time from ~2 days to half a day.",
+       "Polysomnography Scoring: Scored 180+ overnight PSG recordings under AASM criteria with inter-rater agreement of κ = 0.86 against a senior technician; built a scoring checklist adopted by two new students.",
+       "Statistical Analysis: Ran mixed-effects models in R (lme4) linking slow-wave sleep duration to next-day memory scores; results contributed to a poster accepted at a 2026 international sleep research congress."
+      ]
+     },
+     {
+      "org": "XX University Hospital — Department of Neurology",
+      "loc": "",
+      "role": "Clinical Research Intern (summer)",
+      "dates": "Jun – Aug 2025",
+      "bullets": [
+       "Patient Recruitment: Screened 420 outpatient records for a phase-III stroke rehabilitation trial, pre-identified 61 eligible candidates and supported informed-consent visits with the study coordinator.",
+       "Regulatory Documentation: Prepared adverse-event forms and monitoring binders for two sponsor audits with zero major findings; standardized the source-document checklist used across 3 study sites.",
+       "Literature Review: Synthesized 45 papers on post-stroke motor recovery into a structured evidence table (PICO format) used in the protocol amendment."
+      ]
+     }
+    ]
+   },
+   {
+    "title": "Clinical Experience",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "XX Hospital — Internal Medicine",
+      "loc": "",
+      "role": "Clinical Rotation (externe)",
+      "dates": "Jan – Apr 2026",
+      "bullets": [
+       "Ward Follow-up: Managed 6–8 inpatients daily under supervision, including history taking, physical exams, case presentations at morning rounds and discharge summaries.",
+       "Peer Teaching: Led a 15-minute session on anticoagulation reversal for 12 fellow students; rated 4.7/5 in peer feedback."
+      ]
+     }
+    ]
+   },
+   {
+    "title": "Projects & Publications",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "Meta-analysis: Melatonin and Delirium Prevention in ICU",
+      "loc": "",
+      "role": "First author, student research project (UE Recherche)",
+      "dates": "Oct 2025 – Mar 2026",
+      "bullets": [
+       "Screened 1,120 abstracts and 38 full texts following PRISMA; pooled 9 RCTs (n = 1,432) with random-effects models in R (metafor), assessed risk of bias with RoB 2 and heterogeneity with I².",
+       "Manuscript under review at a peer-reviewed journal; presented at the faculty research day (2nd prize, student session)."
+      ]
+     },
+     {
+      "org": "Open-Source Tool: PSG Annotation Helper",
+      "loc": "GitHub",
+      "role": "Python / Streamlit",
+      "dates": "Dec 2025",
+      "bullets": [
+       "Built a small web app that visualizes EEG epochs and exports AASM sleep-stage labels to CSV, now used by 4 lab members for pilot scoring."
+      ]
+     }
+    ]
+   },
+   {
+    "title": "Additional Information",
+    "type": "text",
+    "locked": true,
+    "lines": [
+     "Languages: French (Native) | English (C1, IELTS 8.0) | Spanish (B1)",
+     "Technical Skills: R (tidyverse, lme4, metafor) | Python (pandas, MNE) | SPSS | REDCap | Zotero | LaTeX",
+     "Certifications: Good Clinical Practice (ICH-GCP, 2025) | Basic Life Support (2024)",
+     "Interests: Long-distance running (half-marathon 2025) | Science outreach volunteer"
+    ]
+   }
+  ],
+  "contacts": [
+   {
+    "text": "+33 6 00 00 00 00",
+    "url": ""
+   },
+   {
+    "text": "lea.martin@example.com",
+    "url": ""
+   },
+   {
+    "text": "LinkedIn",
+    "url": "https://www.linkedin.com/in/example"
+   },
+   {
+    "text": "ORCID",
+    "url": "https://orcid.org/0000-0000-0000-0000"
+   }
+  ]
+ },
+ "cn_ra": {
+  "name": "林晓雨",
+  "tagline": "",
+  "layout": {
+   "mv": 18,
+   "mh": 20,
+   "fs": 13,
+   "lh": 1.38,
+   "sg": 18,
+   "eg": 10,
+   "bg": 2,
+   "ph": 22,
+   "ff": ""
+  },
+  "sections": [
+   {
+    "title": "教育背景",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "XX大学医学院",
+      "loc": "",
+      "role": "临床医学（五年制）本科四年级",
+      "dates": "2022.09 – 2027.06",
+      "bullets": [
+       "【学业成绩】GPA 3.82/4.0（专业前5%），获国家奖学金、校优秀学生",
+       "【核心课程】医学统计学、流行病学、神经病学、内科学、循证医学、医学科研方法"
+      ]
+     }
+    ]
+   },
+   {
+    "title": "科研经历",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "XX大学脑科学研究院 睡眠与认知实验室",
+      "loc": "",
+      "role": "本科生科研助理（兼职）",
+      "dates": "2025.09 – 至今",
+      "bullets": [
+       "【队列数据管理】负责240人睡眠纵向队列的REDCap数据库维护，编写数据质控规则自动标记3.1%的异常录入，月度清洗时间由约2天缩短至半天。",
+       "【多导睡眠图判读】按AASM标准完成180+份整夜PSG分期，与高年资技师的一致性κ=0.86；整理判读清单被两名新进学生沿用。",
+       "【统计分析】使用R（lme4）建立混合效应模型，分析慢波睡眠时长与次日记忆成绩的关联，结果纳入2026年一场国际睡眠研究会议海报。"
+      ]
+     },
+     {
+      "org": "XX医院神经内科",
+      "loc": "",
+      "role": "临床研究暑期实习生",
+      "dates": "2025.06 – 2025.08",
+      "bullets": [
+       "【受试者招募】筛查420份门诊病历，为一项卒中康复III期临床试验预筛61名符合入组条件的候选者，协助研究协调员完成知情同意访视。",
+       "【研究文书与稽查】整理不良事件表与监查文件夹，配合两次申办方稽查零重大发现；统一3家分中心的源文件核对清单。",
+       "【文献综述】按PICO框架梳理45篇卒中后运动功能恢复文献，形成证据表并用于方案修订。"
+      ]
+     }
+    ]
+   },
+   {
+    "title": "临床经历",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "XX医院内科",
+      "loc": "",
+      "role": "临床见习",
+      "dates": "2026.01 – 2026.04",
+      "bullets": [
+       "【病房随访】在带教指导下负责6–8名住院患者的日常管理，包括问诊查体、晨间交班病例汇报与出院小结撰写。",
+       "【教学分享】面向12名同学开展15分钟抗凝逆转专题小讲课，同伴评分4.7/5。"
+      ]
+     }
+    ]
+   },
+   {
+    "title": "项目与成果",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "褪黑素预防ICU谵妄的Meta分析",
+      "loc": "",
+      "role": "第一作者 · 本科生科研项目",
+      "dates": "2025.10 – 2026.03",
+      "bullets": [
+       "【系统检索与合并】按PRISMA流程筛选1120篇摘要、38篇全文，纳入9项RCT（n=1432），使用R（metafor）随机效应模型合并，RoB 2评估偏倚风险、I²评估异质性。",
+       "【成果】论文已投稿同行评审期刊；在学院科研日汇报并获学生组二等奖。"
+      ]
+     },
+     {
+      "org": "开源工具：PSG标注助手",
+      "loc": "GitHub",
+      "role": "Python / Streamlit",
+      "dates": "2025.12",
+      "bullets": [
+       "搭建轻量网页工具，可视化EEG片段并导出AASM睡眠分期标签为CSV，目前实验室4名成员用于预判读。"
+      ]
+     }
+    ]
+   },
+   {
+    "title": "技能与其他",
+    "type": "text",
+    "locked": true,
+    "lines": [
+     "语言：中文（母语）、英语（雅思8.0，可作为工作语言）、法语（A2）",
+     "技能：R（tidyverse、lme4、metafor）、Python（pandas、MNE）、SPSS、REDCap、Zotero、LaTeX",
+     "证书：ICH-GCP临床试验质量管理规范（2025）、基础生命支持BLS（2024）",
+     "其他：半程马拉松完赛（2025）、科技馆科普志愿者"
+    ]
+   }
+  ],
+  "contacts": [
+   {
+    "text": "138 0000 0000",
+    "url": ""
+   },
+   {
+    "text": "linxiaoyu@example.com",
+    "url": ""
+   },
+   {
+    "text": "ORCID",
+    "url": "https://orcid.org/0000-0000-0000-0000"
+   }
+  ]
+ },
+ "fr_ra": {
+  "name": "Léa Martin",
+  "tagline": "Étudiante en médecine (DFASM1) — recherche un poste d'assistante de recherche clinique",
+  "layout": {
+   "mv": 18,
+   "mh": 20,
+   "fs": 13,
+   "lh": 1.38,
+   "sg": 18,
+   "eg": 10,
+   "bg": 2,
+   "ph": 22,
+   "ff": ""
+  },
+  "sections": [
+   {
+    "title": "Formation",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "Université XX — Faculté de médecine",
+      "loc": "",
+      "role": "Études de médecine, 4e année (DFASM1) | Parcours recherche : méthodes en recherche clinique",
+      "dates": "2022 – aujourd'hui",
+      "bullets": [
+       "Cours principaux : Biostatistiques | Épidémiologie | Neurologie | Médecine interne | Médecine fondée sur les preuves | Éthique de la recherche (certification BPC)"
+      ]
+     },
+     {
+      "org": "Lycée XX",
+      "loc": "",
+      "role": "Baccalauréat scientifique, mention Très Bien (17,6/20)",
+      "dates": "2019 – 2022",
+      "bullets": []
+     }
+    ]
+   },
+   {
+    "title": "Expérience en recherche",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "Institut XX de neurosciences — Laboratoire Sommeil & Cognition",
+      "loc": "",
+      "role": "Assistante de recherche étudiante (temps partiel)",
+      "dates": "Sept. 2025 – aujourd'hui",
+      "bullets": [
+       "Gestion des données de cohorte : maintenance d'une base REDCap pour une cohorte longitudinale de 240 participants ; rédaction de règles de contrôle qualité signalant 3,1 % des saisies, temps de nettoyage mensuel réduit de 2 jours à une demi-journée.",
+       "Lecture de polysomnographies : scoring de plus de 180 enregistrements selon les critères AASM, concordance inter-juges κ = 0,86 avec une technicienne senior ; check-list de scoring reprise par deux nouveaux étudiants.",
+       "Analyses statistiques : modèles mixtes sous R (lme4) reliant la durée de sommeil lent profond aux scores de mémoire du lendemain ; résultats intégrés à un poster accepté à un congrès international sur le sommeil (2026)."
+      ]
+     },
+     {
+      "org": "CHU XX — Service de neurologie",
+      "loc": "",
+      "role": "Stagiaire en recherche clinique (été)",
+      "dates": "Juin – août 2025",
+      "bullets": [
+       "Recrutement : criblage de 420 dossiers de consultation pour un essai de phase III en rééducation post-AVC, pré-identification de 61 patients éligibles, participation aux visites de consentement.",
+       "Documentation réglementaire : préparation des fiches d'événements indésirables et des classeurs de monitoring pour deux audits promoteur sans écart majeur ; harmonisation de la check-list des documents source sur 3 centres.",
+       "Revue de littérature : synthèse de 45 articles sur la récupération motrice post-AVC sous forme de tableau de preuves (format PICO) utilisé dans l'amendement du protocole."
+      ]
+     }
+    ]
+   },
+   {
+    "title": "Expérience clinique",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "Hôpital XX — Médecine interne",
+      "loc": "",
+      "role": "Stage hospitalier (externe)",
+      "dates": "Janv. – avr. 2026",
+      "bullets": [
+       "Suivi de patients : prise en charge quotidienne de 6 à 8 patients hospitalisés sous supervision (interrogatoire, examen clinique, présentation des cas au staff, comptes rendus de sortie).",
+       "Enseignement : animation d'un topo de 15 minutes sur l'antagonisation des anticoagulants devant 12 étudiants (note de 4,7/5)."
+      ]
+     }
+    ]
+   },
+   {
+    "title": "Projets et publications",
+    "type": "entries",
+    "locked": true,
+    "entries": [
+     {
+      "org": "Méta-analyse : mélatonine et prévention du délirium en réanimation",
+      "loc": "",
+      "role": "Première auteure · projet de recherche (UE Recherche)",
+      "dates": "Oct. 2025 – mars 2026",
+      "bullets": [
+       "Sélection de 1 120 résumés et 38 articles complets selon PRISMA ; 9 essais randomisés inclus (n = 1 432), modèle à effets aléatoires sous R (metafor), risque de biais évalué avec RoB 2, hétérogénéité par I².",
+       "Manuscrit en cours de révision dans une revue à comité de lecture ; présentation à la journée recherche de la faculté (2e prix, session étudiante)."
+      ]
+     },
+     {
+      "org": "Outil open source : PSG Annotation Helper",
+      "loc": "GitHub",
+      "role": "Python / Streamlit",
+      "dates": "Déc. 2025",
+      "bullets": [
+       "Application web légère pour visualiser les époques EEG et exporter les stades de sommeil AASM en CSV, utilisée par 4 membres du laboratoire."
+      ]
+     }
+    ]
+   },
+   {
+    "title": "Informations complémentaires",
+    "type": "text",
+    "locked": true,
+    "lines": [
+     "Langues : Français (langue maternelle) | Anglais (C1, IELTS 8.0) | Espagnol (B1)",
+     "Compétences techniques : R (tidyverse, lme4, metafor) | Python (pandas, MNE) | SPSS | REDCap | Zotero | LaTeX",
+     "Certifications : Bonnes pratiques cliniques (ICH-GCP, 2025) | Premiers secours PSC1 (2024)",
+     "Centres d'intérêt : Course de fond (semi-marathon 2025) | Bénévolat en médiation scientifique"
+    ]
+   }
+  ],
+  "contacts": [
+   {
+    "text": "+33 6 00 00 00 00",
+    "url": ""
+   },
+   {
+    "text": "lea.martin@example.com",
+    "url": ""
+   },
+   {
+    "text": "LinkedIn",
+    "url": "https://www.linkedin.com/in/example"
+   },
+   {
+    "text": "ORCID",
+    "url": "https://orcid.org/0000-0000-0000-0000"
+   }
+  ]
+ }
+};
+}
+var SEED_VER="public1",SEED_MAP={en:{"RA":"en_ra"},cn:{"默认":"cn_ra"},fr:{"RA":"fr_ra"}};
+function defaultState(){
+  var d=defaultDocs();
+  return {lang:"en",presets:{en:"en0",cn:"cn0",fr:"fr0"},
+    docs:{en:{active:"RA",versions:{"RA":d.en_ra}},
+          cn:{active:"默认",versions:{"默认":d.cn_ra}},
+          fr:{active:"RA",versions:{"RA":d.fr_ra}}}};
+}
+var state;
+try{state=JSON.parse(localStorage.getItem(LS_KEY));}catch(e){state=null;}
+if(!state||!state.docs||!state.presets)state=defaultState();
+LANGS.forEach(function(l){if(!state.docs[l.id])state.docs[l.id]={active:"默认",versions:{"默认":{name:"",tagline:"",contact:"",sections:[]}}};});
+(function migrate(){
+  var dd=defaultDocs();
+  /* 内置文案更新：未改过的版本直接换新；改过的保留，新文案另存为「名·新」 */
+  var added=[];
+  Object.keys(SEED_MAP).forEach(function(lg){var box=state.docs[lg];Object.keys(SEED_MAP[lg]).forEach(function(nm){
+    var seed=dd[SEED_MAP[lg][nm]];seed._seed=SEED_VER;var st=box.versions[nm];
+    if(!st){if((box._del||[]).indexOf(nm)>=0)return;box.versions[nm]=seed;return;}
+    if(st._seed===SEED_VER)return;
+    if(!st._ts){if(st.photo)seed.photo=st.photo;if(st.layout)seed.layout=st.layout;box.versions[nm]=seed;}
+    else{st._seed=SEED_VER;var nn=nm+"·新";if(!box.versions[nn]){if(st.photo)seed.photo=st.photo;box.versions[nn]=seed;added.push(lg.toUpperCase()+"/"+nn);}}
+  });});
+  if(added.length)setTimeout(function(){alert("检测到你改过的版本，内置新文案另存为：\n"+added.join("\n")+"\n旧版本原样保留，可在版本下拉里切换或删除。");},300);
+})();
+var qs={};location.search.slice(1).split("&").forEach(function(kv){var p=kv.split("=");if(p[0])qs[p[0]]=p[1];});
+if(qs.lang&&state.docs[qs.lang])state.lang=qs.lang;
+if(qs.preset)state.presets[state.lang]=qs.preset;
+if(qs.ver&&langBox().versions[decodeURIComponent(qs.ver)])langBox().active=decodeURIComponent(qs.ver);
+if(qs.pdf)state.pdfMode=qs.pdf;
+if(qs.q&&LAYOUT_QUICK[qs.q])cur().layout=Object.assign({},LAYOUT_QUICK[qs.q]);
+if(qs.photo)cur().photo="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="72" height="100"><rect width="72" height="100" fill="%238aa4b8"/><circle cx="36" cy="38" r="16" fill="%23e8eef3"/><rect x="12" y="62" width="48" height="38" rx="10" fill="%23e8eef3"/></svg>');
+["fs","lh","bg","eg","sg","mv","mh","ph"].forEach(function(k){if(qs[k]!=null)layoutOf(cur())[k]=parseFloat(qs[k]);});
+if(qs.noalert)window.alert=function(m){document.title="ALERT:"+m+" | "+document.title;};
+if(qs.fit){setTimeout(function(){if(qs.fit!=="0")autofit(parseInt(qs.fit)||1);/* fit=0：不自适应，只按URL给的参数排版并出审计（调试用） */document.title+=" | fitdone";
+  if(qs.wordpv){var wh=wordHtml();document.open();document.write(wh);document.close();return;}
+  if(qs.audit){var d=cur(),L=layoutOf(d),headed=0,total=0;d.sections.forEach(function(sc){(sc.entries||[]).forEach(function(e){(e.bullets||[]).forEach(function(b){if(String(b).trim()){total++;if(splitB(b).h)headed++;}});});(sc.lines||[]).forEach(function(b){if(String(b).trim()){total++;if(splitB(b).h)headed++;}});});
+    document.title="AUDIT"+JSON.stringify({fb:L._fb||0,fitlog:window._fitlog||null,lang:state.lang,ver:langBox().active,preset:curPreset(),pages:Math.ceil(contentH()/PAGE_H),fs:L.fs,pt:+(L.fs*0.75).toFixed(1),mv:L.mv,mh:L.mh,li:pageEl.querySelectorAll("li").length,lb:pageEl.querySelectorAll(".lb").length,headed:headed,total:total,wrap:wrappedRows(),font:getComputedStyle(pageEl).fontFamily,orph:(function(){var out=[];pageEl.querySelectorAll("li").forEach(function(li){var lh=parseFloat(getComputedStyle(li).lineHeight),n=Math.round(li.getBoundingClientRect().height/lh);var r=document.createRange();r.selectNodeContents(li);var rects=r.getClientRects();var last=rects.length?rects[rects.length-1].width/li.getBoundingClientRect().width:0;out.push([li.textContent.slice(0,28),n,+last.toFixed(2)]);});return out;})()});}},50);}
+
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){alert("本地存储已满或被禁用，请立刻备份JSON");}}
+function touch(){cur()._ts=Date.now();}
+function langBox(){return state.docs[state.lang];}
+function cur(){var b=langBox();if(!b.versions[b.active])b.active=Object.keys(b.versions)[0];return b.versions[b.active];}
+function verList(){return Object.keys(langBox().versions);}
+function curPreset(){var al=LANG_PRESETS[state.lang],p=state.presets[state.lang];if(al.indexOf(p)<0){p=al[0];state.presets[state.lang]=p;}return p;}
+
+/* ================= utils ================= */
+function esc(s){return String(s==null?"":s).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");}
+function contactsOf(doc){
+  if(!doc.contacts){
+    doc.contacts=String(doc.contact||"").split("|").map(function(t){t=t.trim();if(!t)return null;
+      var a=t.indexOf("["),b=t.indexOf("]("),c=t.lastIndexOf(")");
+      if(a===0&&b>0&&c>b)return {text:t.slice(1,b),url:t.slice(b+2,c)};
+      return {text:t,url:""};}).filter(Boolean);
+    delete doc.contact;
+  }
+  return doc.contacts;
+}
+function contactHtml(doc,sep){
+  return contactsOf(doc).filter(function(c){return c.text&&c.text.trim();}).map(function(c){
+    var t=esc(c.text.trim());return c.url&&c.url.trim()?'<a href="'+esc(c.url.trim())+'" style="color:inherit;">'+t+'</a>':t;}).join(sep||" | ");
+}
+function linkify(h){
+  var out="",i=0;
+  while(true){var a=h.indexOf("[",i);if(a<0)break;var b=h.indexOf("](",a);if(b<0)break;var c=h.indexOf(")",b);if(c<0)break;
+    out+=h.slice(i,a)+'<a href="'+h.slice(b+2,c)+'" style="color:inherit;">'+h.slice(a+1,b)+'</a>';i=c+1;}
+  return out+h.slice(i);
+}
+function labelize(line){
+  var s=String(line||"");
+  var sp=splitB(s);if(!sp.h)return linkify(esc(s));
+  return '<span class="lb'+(sp.h.charAt(0)==="【"?" lbk":"")+'">'+esc(sp.h+sp.sep)+'</span>'+linkify(esc(sp.c));
+}
+
+/* ================= renderer ================= */
+function rowHtml(l,r,cls,forWord,attrs){
+  if(forWord){
+    return '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>'+
+      '<td class="w-'+cls+'l" style="padding:0;">'+l+'</td>'+
+      '<td class="w-'+cls+'r" style="padding:0;text-align:right;white-space:nowrap;">'+r+'</td></tr></table>';
+  }
+  return '<div class="'+cls+'"'+(attrs||'')+'><span>'+l+'</span><span class="r">'+r+'</span></div>';
+}
+/* FR3：日期统一为数字格式（JobMag/法国招聘站建议：单一格式、不混用月份文字），"aujourd'hui"→"depuis" */
+var FR_MONTHS={janv:"01",janvier:"01",fevr:"02",fev:"02",fevrier:"02",mars:"03",avr:"04",avril:"04",mai:"05",juin:"06",juil:"07",juillet:"07",aout:"08",sept:"09",septembre:"09",oct:"10",octobre:"10",nov:"11",novembre:"11",dec:"12",decembre:"12"};
+function frMon(w){w=String(w).toLowerCase().replace(/\./g,"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");return FR_MONTHS[w]||null;}
+function frNumDate(s){s=String(s||"").trim();if(!s)return s;
+  var t=s.replace(/\s*[–—-]\s*/g," – ").replace(/\s+/g," ");
+  var parts=t.split(" – ");if(parts.length>2)return s;
+  function one(p,yFallback){p=p.trim();var m;
+    if(/^aujourd/i.test(p)||/^present$/i.test(p))return "NOW";
+    if(m=p.match(/^(\d{4})$/))return m[1];
+    if(m=p.match(/^(\d{1,2})\/(\d{4})$/))return ("0"+m[1]).slice(-2)+"/"+m[2];
+    if(m=p.match(/^([A-Za-zÀ-ÿ.]+)\s+(\d{4})$/)){var mo=frMon(m[1]);return mo?mo+"/"+m[2]:null;}
+    if(m=p.match(/^([A-Za-zÀ-ÿ.]+)$/)){var mo2=frMon(m[1]);return mo2&&yFallback?mo2+"/"+yFallback:null;}
+    return null;}
+  if(parts.length===1){var a=one(parts[0]);return a&&a!=="NOW"?a:s;}
+  var yb=(parts[1].match(/(\d{4})\s*$/)||[])[1];
+  var A=one(parts[0],yb),B=one(parts[1]);if(!A||!B||A==="NOW")return s;
+  return B==="NOW"?"depuis "+A:A+"–"+B;}
+/* 时间轴日期拆成 年份 + 月份 两行：{y:"2026",m:"Juin – Sept."} */
+function frDateStack(s,nowLabel){nowLabel=nowLabel||"auj.";s=String(s||"").trim();if(!s)return {y:"",m:""};
+  var t=s.replace(/\s*[–—-]\s*/g," – ").replace(/\s+/g," "),parts=t.split(" – ");
+  function yr(p){var m=p.match(/(\d{4})\s*$/);return m?m[1]:null;}
+  function mo(p){return p.replace(/\s*\d{4}\s*$/,"").trim();}
+  if(parts.length===1){var y=yr(parts[0]);if(!y)return {y:s,m:""};return {y:y,m:mo(parts[0])};}
+  if(parts.length!==2)return {y:s,m:""};
+  var a=parts[0],b=parts[1],ya=yr(a),yb=yr(b),now=/^aujourd|^present$/i.test(b);
+  if(!ya){if(yb&&!now)return {y:yb,m:mo(a)+" – "+mo(b)};return {y:s,m:""};}
+  if(now)return {y:ya,m:(mo(a)?mo(a)+" – ":"– ")+nowLabel};
+  if(!yb)return {y:ya,m:mo(a)+" – "+b};
+  if(ya===yb)return {y:ya,m:(mo(a)&&mo(b))?mo(a)+" – "+mo(b):(mo(a)||mo(b))};
+  if(!mo(a)&&!mo(b))return {y:ya,m:"– "+yb};
+  return {y:ya+"–"+yb.slice(2),m:mo(a)+" – "+mo(b)};}
+function fitDates(){if(!pageEl.classList.contains("fr2"))return;pageEl.style.removeProperty("--dtw");var w=0;pageEl.style.setProperty("--dtw","1px");pageEl.querySelectorAll(".row .dt").forEach(function(d){w=Math.max(w,d.scrollWidth);});
+  if(w)pageEl.style.setProperty("--dtw",(w+2)+"px");else pageEl.style.removeProperty("--dtw");}
+function rowAttrs(e,mode){return e.role?' data-m="'+mode+'" data-o="'+esc(e.org)+'" data-r="'+esc(e.role)+'" data-l="'+esc(e.loc)+'" data-d="'+esc(e.dates)+'"':'';}
+/* 表头折行规则：机构|职位|地点 一行放不下时，不在中间硬折，而是职位单独换到第二行；第一行只留 机构|地点 + 日期 */
+function fitRows(){pageEl.querySelectorAll(".row[data-r]").forEach(function(row){
+  var lh=parseFloat(getComputedStyle(row).lineHeight)||16;if(row.getBoundingClientRect().height<=lh*1.6)return;
+  var o=row.getAttribute("data-o"),r=row.getAttribute("data-r"),l=row.getAttribute("data-l"),d=row.getAttribute("data-d"),m=row.getAttribute("data-m");
+  var left=m==="bar"?[o,l].filter(Boolean).join(" | "):m==="cls"?("<b>"+esc(o)+"</b>"+(l?(state.lang==="cn"?" | ":", ")+esc(l):"")):o,right=(m==="bar"||m==="cls")?d:[d,l].filter(Boolean).join(" · ");
+  row.innerHTML='<span>'+left+'</span><span class="r">'+right+'</span>';
+  var r2=document.createElement("div");r2.className="row2";r2.textContent=r;row.parentNode.insertBefore(r2,row.nextSibling);});}
+function renderDoc(doc,preset,forWord){
+  var h=[];
+  var hd='<div class="name">'+esc(doc.name)+'</div>'+
+    (doc.tagline?'<div class="tagline">'+esc(doc.tagline)+'</div>':'')+
+    '<div class="contact">'+contactHtml(doc,preset==="cn2"?" · ":" | ")+'</div>'+
+    (doc.summary&&doc.summary.trim()?'<div class="summary">'+linkify(esc(doc.summary))+'</div>':'');
+  if(doc.photo){
+    if(forWord){
+      h.push('<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr><td style="padding:0;vertical-align:top;">'+hd+'</td>'+
+        '<td style="padding:0;width:'+(((layoutOf(doc)._phEff||layoutOf(doc).ph||26)*0.72)+2).toFixed(1)+'mm;text-align:right;vertical-align:top;"><img src="'+doc.photo+'" style="height:'+(layoutOf(doc)._phEff||layoutOf(doc).ph||26).toFixed(1)+'mm;width:'+((layoutOf(doc)._phEff||layoutOf(doc).ph||26)*0.72).toFixed(1)+'mm;border:1px solid #bbb;"></td></tr></table>');
+    }else{
+      h.push('<div class="hdr hasphoto">'+hd+'<img class="photo" title="按住上下拖动调整大小（底边固定），双击恢复自动" draggable="false" src="'+doc.photo+'"></div>');
+    }
+  }else{h.push('<div class="hdr">'+hd+'</div>');}
+  doc.sections.forEach(function(sec,si){
+    h.push('<h2>'+esc(sec.title)+'</h2>');
+    if(sec.type==="entries"){
+      (sec.entries||[]).forEach(function(e,ei){
+        h.push('<div class="entryblk">');
+        var top,subL;
+        if(preset==="fin"){
+          top=rowHtml(esc(e.org),esc(e.loc),"row",forWord);
+          subL=rowHtml(esc(e.role),esc(e.dates),"sub",forWord);
+          h.push(top);if(e.role||e.dates)h.push(subL);
+        }else if(preset==="fr2"||preset==="fr3"||preset==="en4"){
+          var bd="<b>"+esc(e.org)+"</b>"+(e.role?" — "+esc(e.role):"")+(e.loc?' <span class="loc">· '+esc(e.loc)+"</span>":""),ds=frDateStack(e.dates,state.lang==="en"?"Present":"auj."),dts=esc(ds.y)+(ds.m?'<small>'+esc(ds.m)+'</small>':'');
+          if(forWord)h.push('<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr><td class="w-dt" style="padding:0 6pt 0 0;width:48pt;vertical-align:top;text-align:right;">'+esc(ds.y)+(ds.m?'<br><span class="w-dm">'+esc(ds.m)+'</span>':'')+'</td><td style="padding:0;">'+bd+'</td></tr></table>');
+          else h.push('<div class="row"><span class="dt">'+dts+'</span><span class="bd">'+bd+'</span></div>');
+        }else if(CLASSIC[preset]){
+          var cnp=state.lang==="cn",lc="<b>"+esc(e.org)+"</b>"+(e.role?(cnp?" | ":" \u2014 ")+esc(e.role):"")+(e.loc?(cnp?" | ":", ")+esc(e.loc):"");
+          h.push(rowHtml(lc,esc(e.dates),"row",forWord,rowAttrs(e,"cls")));
+        }else if(preset==="cn"||preset==="cn2"){
+          var parts=[e.org,e.role,e.loc].filter(function(x){return x&&String(x).trim();}).map(esc);
+          h.push(rowHtml(parts.join(" | "),esc(e.dates),"row",forWord,rowAttrs(e,"bar")));
+        }else{
+          var left=esc(e.org)+(e.role?" — "+esc(e.role):"");
+          var right=esc(e.dates)+(e.loc?" · "+esc(e.loc):"");
+          h.push(rowHtml(left,right,"row",forWord,rowAttrs(e,"dash")));
+        }
+        if((e.bullets||[]).length){
+          h.push('<ul>');
+          e.bullets.forEach(function(b,bi){if(String(b).trim())h.push('<li'+(forWord?'':' data-bk="'+si+'-'+ei+'-'+bi+'"')+'>'+labelize(b)+'</li>');});
+          h.push('</ul>');
+        }else{h.push('<div style="height:8px;"></div>');}
+        h.push('</div>');
+      });
+    }else{
+      h.push('<ul>');
+      (sec.lines||[]).forEach(function(b){if(String(b).trim())h.push('<li>'+labelize(b)+'</li>');});
+      h.push('</ul>');
+    }
+  });
+  return h.join("");
+}
+
+/* ================= preview ================= */
+var pageEl=document.getElementById("page"),pvsEl=document.getElementById("pvscroll");
+/* ---------- 预览缩放（只影响右侧显示，不进导出） ---------- */
+var ZOOM_LS="resumeStudio_zoom",zoom={mode:"fit",z:1};
+try{var _zz=JSON.parse(localStorage.getItem(ZOOM_LS)||"null");if(_zz&&_zz.mode)zoom=_zz;}catch(e){}
+if(qs.zoom){zoom=qs.zoom==="fit"?{mode:"fit",z:1}:{mode:"num",z:parseInt(qs.zoom)/100};}
+function zoomFitVal(){pvsEl.style.zoom="1";var top=pvsEl.getBoundingClientRect().top+window.scrollY,avail=window.innerHeight-Math.min(top,110)-16;return Math.min(1.5,Math.max(0.3,avail/PAGE_H));}
+var _fitting=false;
+function applyZoom(){if(_fitting){pvsEl.style.zoom="1";return;}var z=zoom.mode==="fit"?zoomFitVal():zoom.z;z=Math.min(1.5,Math.max(0.3,z));pvsEl.style.zoom=String(z);
+  document.getElementById("zoomPct").textContent=Math.round(z*100)+"%";
+  document.querySelectorAll("#zoombar button").forEach(function(b){b.classList.toggle("on",(b.dataset.z==="fit"&&zoom.mode==="fit")||(b.dataset.z==="100"&&zoom.mode==="num"&&Math.abs(zoom.z-1)<0.005));});
+  try{localStorage.setItem(ZOOM_LS,JSON.stringify(zoom));}catch(e){}}
+document.getElementById("zoombar").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var v=b.dataset.z;
+  var curZ=parseFloat(pvsEl.style.zoom)||1;
+  if(v==="fit")zoom={mode:"fit",z:1};else if(v==="100")zoom={mode:"num",z:1};
+  else zoom={mode:"num",z:Math.round((curZ+(v==="+"?0.1:-0.1))*10)/10};applyZoom();});
+window.addEventListener("resize",function(){if(zoom.mode==="fit")applyZoom();});
+/* 编辑器读数：每条bullet在预览里占几行、末行填充率（如"2.1行"），<0.3且≥2行标红；只显示读数，不提示。输入时300ms节流 */
+var _lnT=0;
+function lineNumsNow(){var zs=pvsEl.style.zoom;pvsEl.style.zoom="1";edEl.querySelectorAll(".lnum").forEach(function(sp){var li=pageEl.querySelector('li[data-bk="'+sp.getAttribute("data-bk")+'"]');
+  if(!li){sp.textContent="";sp.className="lnum";return;}var n=liLines(li),r=lastLineRatio(li);sp.textContent=n+"."+Math.min(9,Math.round(r*10))+"行";sp.className="lnum"+(n>=2&&r<0.3?" orph":"");});pvsEl.style.zoom=zs;}
+function updateLineNums(){if(_fitting)return;clearTimeout(_lnT);_lnT=setTimeout(lineNumsNow,300);}
+function updatePreview(){
+  var p=curPreset();
+  pageEl.className="page "+p+((p==="fr3"||p==="en4")?" fr2":"")+(CLASSIC[p]?" classic":"");if(state.lang==="fr")pageEl.setAttribute("lang","fr");else if(state.lang==="en")pageEl.setAttribute("lang","en");else pageEl.removeAttribute("lang");
+  pageEl.innerHTML=renderDoc(cur(),p,false);
+  var L=layoutOf(cur());pvsEl.style.zoom="1";
+  pageEl.style.setProperty("--mv",L.mv+"mm");pageEl.style.setProperty("--mh",L.mh+"mm");pageEl.style.setProperty("--mvt",mvTop(L,p).toFixed(2)+"mm");
+  pageEl.style.setProperty("--fs",L.fs+"px");pageEl.style.setProperty("--lh",L.lh);
+  pageEl.style.setProperty("--sg",L.sg+"px");pageEl.style.setProperty("--eg",L.eg+"px");pageEl.style.setProperty("--bg",L.bg+"px");pageEl.style.setProperty("--ph",(L.ph||30)+"mm");
+  pageEl.style.setProperty("--ff",effFont(L,p,state.lang));
+  fitRows();fitDates();L._phEff=fitPhoto(L);applyOls(L);
+  document.getElementById("printPage").textContent="@page{size:A4;margin:"+mvTop(L,p).toFixed(2)+"mm "+L.mh+"mm "+L.mv+"mm "+L.mh+"mm;}";
+  fitContact();updateLineNums();
+  pageEl.style.minHeight="0";
+  var contentH=pageEl.scrollHeight;
+  var pages=Math.max(1,Math.ceil(contentH/PAGE_H)),longMode=state.pdfMode==="long";
+  var longH=Math.max(297,Math.ceil(contentH*210/794)+2);
+  if(longMode)document.getElementById("printPage").textContent="@page{size:210mm "+longH+"mm;margin:"+mvTop(L,p).toFixed(2)+"mm "+L.mh+"mm "+L.mv+"mm "+L.mh+"mm;}";
+  pageEl.style.minHeight=(longMode?Math.max(contentH,PAGE_H):pages*PAGE_H)+"px";
+  for(var i=1;i<pages;i++){
+    var mk=document.createElement("div");mk.className="pagemark";mk.style.top=(i*PAGE_H)+"px";
+    mk.setAttribute("data-t",(longMode?"A4第":"第")+i+"页结束");pageEl.appendChild(mk);
+  }
+  var pt=L.fs*0.75,wr=wrappedRows();document.getElementById("pageInfo").textContent=(longMode?"长页"+longH+"mm（约"+(contentH/PAGE_H).toFixed(1)+"页A4）":"约"+pages+"页")+" · 正文"+pt.toFixed(1)+"pt"+(wr?" · 表头折行"+wr+"处（请缩短机构/职位）":"");
+  renderPresetSel();
+  applyZoom();
+  save();
+}
+
+/* ================= autofit（一个松紧度t带动全部旋钮） =================
+   规则（只管自适应）：
+   0 硬约束：左右边距对称；上边距=左右-2mm（页眉姓名大字自带视觉空白的光学补偿，下限13mm）；下边距=左右，残余空白最多让它比左右多2mm，零头也留在底部。各旋钮只在语言对应的范围内走。
+   1 间距全部是"正文行高的倍数"，不是固定毫米：章节间距1.0～1.4行、条目间距0.25～0.5行、bullet间距0.05～0.12行。
+     字号变了间距跟着变，层级永远成立：章节间距 > 条目间距 > bullet间距 > 字距。
+   2 内容多时：边距候选18→14mm每0.5mm一档，每档二分出能装下的最大字号（行距间距先全紧），
+     代价=W_FS×字号让步比例+W_M×边距让步比例（W_FS=3,W_M=1），取代价最小的组合，再把行距/间距从紧往松放到刚好装下。
+     效果：先收边距保字号，边距到14mm仍不够才缩字号；不是任何一方绝对优先，而是按权重动态平衡。
+   3 t=1仍装不下：边距锁14mm，字号继续同比缩小（无下限，行距物理下限1.1防叠字），间距倍数不变随字号同缩，层级自动保持。不弹任何提示，删减由用户判断。
+   4 内容少：边距先加宽到18mm；孤行处理让出的高度用字号回加填回（间距倍数跟着走，最多3轮）；残余空白依次：上下边距（≤2mm）→条目间距（≤1mm）→章节间距（≤1mm）→零头一半挪到页顶（上下目视相等）。
+   5 孤行：只看bullet（li）：≥2行且末行不到行宽30%算孤行，单行bullet和标题/描述行不算。先在边距-1.5~+2.5mm内按0.25mm试宽度、字号±0.5px微抖，选孤行代价最小且仍一页的（相同取更宽、更大）；剩下的单条字距收上去或推满30%，上限中文/法文0.05em、英文0.04em（约Word"紧缩/加宽0.5～0.6磅"），做不到就原样保留、不提示，由用户改文案。
+   6 所有测量都在预览缩放100%下进行（缩放会让折行和PDF不一致）。 */
+var FIT_RANGE={
+  cn:{fs:[12,14.67],lh:[1.35,1.5],sg:[1.0,1.4],eg:[0.25,0.5],bg:[0.05,0.12],m:[14,18]},
+  en:{fs:[12,14],lh:[1.15,1.35],sg:[1.0,1.4],eg:[0.25,0.5],bg:[0.05,0.12],m:[14,18]},
+  fr:{fs:[12,14],lh:[1.2,1.4],sg:[1.0,1.4],eg:[0.25,0.5],bg:[0.05,0.12],m:[14,18]}};
+var M_WIDE=18,LH_FLOOR=1.1,PRINT_SLACK=4,MVT_OFF=2,MVT_MIN=13;/* 上边距=左右边距-MVT_OFF（跟着左右走，不是定值），不低于MVT_MIN；残余空白只给底部，所以底≥左右≥上，所有版式含中文1 */
+/* 边距×字号二维权衡（方案二）：不再"边距绝对优先"，而是按代价挑组合。
+   代价 = W_FS×字号让步比例 + W_M×边距让步比例（比例都是0～1：字号从上限缩到下限=1，边距从18缩到14=1）。
+   W_FS=3、W_M=1：字号缩满全程的代价是边距缩满全程的3倍，所以内容多时先收边距保字号；边距收到14mm还不够才缩字号。 */
+var W_FS=3,W_M=1;
+/* 上边距唯一出口：屏幕--mvt和打印@page都从这里取，保证两边一致 */
+function mvTop(L,p){return Math.max(MVT_MIN,L.mh-MVT_OFF);}
+function lerpR(r,t){return r[1]-t*(r[1]-r[0]);}
+function seg(t,a,b){return Math.min(1,Math.max(0,(t-a)/(b-a)));}
+/* 间距倍数→px：以正文行高为单位 */
+function setGaps(L,sgR,egR,bgR){var lhpx=L.fs*L.lh;L.sg=+(lhpx*sgR).toFixed(1);L.eg=+(lhpx*egR).toFixed(1);L.bg=+(lhpx*bgR).toFixed(1);}
+function applyT(L,R,t){
+  var t1=seg(t,0,0.4),t2=seg(t,0.3,0.7),t3=seg(t,0.6,1);
+  L.fs=+lerpR(R.fs,t2).toFixed(2);L.lh=+lerpR(R.lh,t1).toFixed(3);
+  setGaps(L,lerpR(R.sg,t1),lerpR(R.eg,t1),lerpR(R.bg,t1));
+  L.mv=L.mh=+lerpR(R.m,t3).toFixed(1);updatePreview();}
+function applyK(L,R,k){
+  L.fs=+(R.fs[0]*k).toFixed(2);L.lh=+Math.max(LH_FLOOR,R.lh[0]*k).toFixed(3);
+  setGaps(L,R.sg[0],R.eg[0],R.bg[0]);
+  L.mv=L.mh=R.m[0];updatePreview();}
+function contentH(){var zs=pvsEl.style.zoom;pvsEl.style.zoom="1";pageEl.style.minHeight="0";var h=pageEl.scrollHeight;pvsEl.style.zoom=zs;return h;}
+/* 联系方式一行规则：略超出就整体缩字号（最低0.82倍），再不够就允许折两行 */
+function fitContact(){pageEl.querySelectorAll(".contact").forEach(function(el){
+  el.style.removeProperty("font-size");el.style.whiteSpace="nowrap";
+  var base=parseFloat(getComputedStyle(el).fontSize),w=el.clientWidth,sw=el.scrollWidth;
+  if(sw<=w+0.5){el.style.whiteSpace="";return;}
+  var k=Math.max(0.82,(w/sw)*0.995);
+  if(w/sw>=0.82){el.style.setProperty("font-size",(base*k).toFixed(2)+"px","important");}
+  else{el.style.whiteSpace="";}
+});}
+/* 照片：底边永远贴第一个章节标题的横线（相切不重叠），右边贴右边距。
+   自动模式（L.phm=0）：高=顶边距到横线的距离，范围 PH_MIN..L.ph；表头不够高时把表头撑到刚好。
+   手动模式（L.phm>0，拖照片或填"照片高"）：照片是独立图层，高=phm，向左上生长，不改表头排版
+   （表头留白仍按自动值 --phpad 算），最高到纸边。宽=高×0.72（一寸照比例）。*/
+var PH_MIN=18,PX_PER_MM=3.7795;
+function fitPhoto(L){var hdr=pageEl.querySelector(".hdr.hasphoto");if(!hdr)return L.ph;
+  var h2=hdr.nextElementSibling;while(h2&&h2.tagName!=="H2")h2=h2.nextElementSibling;if(!h2)return L.ph;
+  hdr.style.minHeight="";var padTop=parseFloat(getComputedStyle(pageEl).paddingTop),top=pageEl.getBoundingClientRect().top+padTop;
+  var mm=PH_MIN,maxmm=Math.max(PH_MIN,L.ph||26),target=0;
+  function edgeMM(){var cs=getComputedStyle(h2),banded=cs.backgroundColor&&cs.backgroundColor!=="rgba(0, 0, 0, 0)"&&cs.backgroundColor!=="transparent";
+    var hr=h2.getBoundingClientRect();return ((banded?hr.top:hr.bottom-(parseFloat(cs.borderBottomWidth)||0))-2-top)/PX_PER_MM;}
+  for(var pass=0;pass<3;pass++){
+    target=edgeMM();
+    if(target<PH_MIN){hdr.style.minHeight=(hdr.getBoundingClientRect().height+(PH_MIN-target)*PX_PER_MM)+"px";mm=PH_MIN;}
+    else{mm=Math.min(maxmm,target);}
+    pageEl.style.setProperty("--phpad",mm.toFixed(2)+"mm");
+  }
+  target=edgeMM();
+  var man=+L.phm||0;
+  if(man>0){var maxMan=target+padTop/PX_PER_MM;man=Math.min(man,maxMan);mm=man;
+    pageEl.style.setProperty("--phtop",(target-man).toFixed(2)+"mm");}
+  else{pageEl.style.setProperty("--phtop","0mm");}
+  pageEl.style.setProperty("--ph",mm.toFixed(2)+"mm");
+  L._phTarget=target;L._phMax=target+padTop/PX_PER_MM;
+  return mm;}
+/* 拖照片改大小：任意位置按住上下拖，往上=变大（底边不动，向左上长）；双击=恢复自动 */
+(function(){var drag=null;
+  pageEl.addEventListener("pointerdown",function(ev){var img=ev.target.closest&&ev.target.closest(".photo");if(!img)return;ev.preventDefault();
+    var L=layoutOf(cur());drag={y:ev.clientY,h:parseFloat(pageEl.style.getPropertyValue("--ph"))||L.ph,t:L._phTarget||0,max:L._phMax||30,z:parseFloat(pvsEl.style.zoom)||1,cur:0};
+    drag.cur=drag.h;img.setPointerCapture&&img.setPointerCapture(ev.pointerId);});
+  pageEl.addEventListener("pointermove",function(ev){if(!drag)return;
+    var h=drag.h+(drag.y-ev.clientY)/drag.z/PX_PER_MM;h=Math.max(12,Math.min(drag.max,h));drag.cur=h;
+    pageEl.style.setProperty("--ph",h.toFixed(2)+"mm");pageEl.style.setProperty("--phtop",(drag.t-h).toFixed(2)+"mm");});
+  function end(ev){if(!drag)return;var d=drag;drag=null;if(Math.abs(d.cur-d.h)<0.25)return;
+    layoutOf(cur()).phm=Math.round(d.cur*2)/2;touch();renderEditor();updatePreview();}
+  pageEl.addEventListener("pointerup",end);pageEl.addEventListener("pointercancel",end);
+  pageEl.addEventListener("dblclick",function(ev){if(!(ev.target.closest&&ev.target.closest(".photo")))return;layoutOf(cur()).phm=0;touch();renderEditor();updatePreview();});
+})();
+/* 末行占比：把落在最后一行上的所有内联盒（含链接、加粗等）合起来量，避免只看最后一个盒子误判 */
+function lastLineRatio(li){var r=document.createRange();r.selectNodeContents(li);var rects=r.getClientRects();if(!rects.length)return 1;
+  var lh=parseFloat(getComputedStyle(li).lineHeight)||12,bot=-1e9,i;for(i=0;i<rects.length;i++)if(rects[i].width>0&&rects[i].bottom>bot)bot=rects[i].bottom;
+  var l=1e9,rt=-1e9;for(i=0;i<rects.length;i++){var q=rects[i];if(q.width>0&&q.bottom>bot-lh*0.5){if(q.left<l)l=q.left;if(q.right>rt)rt=q.right;}}
+  var b=li.getBoundingClientRect();return rt<=l?0:(rt-l)/b.width;}
+function liLines(li){var lh=parseFloat(getComputedStyle(li).lineHeight);return Math.round(li.getBoundingClientRect().height/lh);}
+/* 孤行代价：bullet最后一行不到行宽30%算孤行，代价=(0.3-占比)累加，越短越重（不改样式） */
+function orphanCost(){var zs=pvsEl.style.zoom;pvsEl.style.zoom="1";var c=0;pageEl.querySelectorAll("li").forEach(function(li){
+  if(liLines(li)<2)return;var q=lastLineRatio(li);if(q<0.3)c+=0.3-q;});pvsEl.style.zoom=zs;return c;}
+/* 孤行统计：bullet最后一行不到行宽30%算一处（不改样式） */
+function countOrphans(){var zs=pvsEl.style.zoom;pvsEl.style.zoom="1";var n=0;pageEl.querySelectorAll("li").forEach(function(li){
+  if(liLines(li)>=2&&lastLineRatio(li)<0.3)n++;});pvsEl.style.zoom=zs;return n;}
+/* 孤行兜底：宽度/字号微调后仍剩的孤行，单条字距最多±0.04em（约Word"紧缩/加宽0.5磅"），中文（每字等宽）和法文（长词多、末行短）放宽到0.05em；做不到就不动 */
+/* LS_SLACK：屏幕和PDF的折行有细微差别，字距解要留这点余量，否则PDF里可能多出一行 */
+var LS_SLACK=0.0075,ORPH_MAX_LS={cn:0.05,en:0.04,fr:0.05};function orphLs(){return ORPH_MAX_LS[state.lang]||0.04;}
+/* 孤行字距结果存在版面里（L.ols=[[条目序号,em],…]），刷新预览时重放；条目数变了就作废 */
+function applyOls(L){var lis=pageEl.querySelectorAll("li");lis.forEach(function(li){li.style.letterSpacing="";});if(!L||!L.ols||!L.ols.length||L.olsN!==lis.length)return;L.ols.forEach(function(o){if(lis[o[0]])lis[o[0]].style.letterSpacing=(o[1]).toFixed(4)+"em";});}
+function tightenOrphans(L){var zs=pvsEl.style.zoom;pvsEl.style.zoom="1";var fixed=0,ols=[],lis=pageEl.querySelectorAll("li");L.ols=[];L.olsN=lis.length;
+  lis.forEach(function(li,idx){
+  li.style.letterSpacing="";var n=liLines(li);if(n<2)return;
+  if(lastLineRatio(li)>=0.3)return;
+  /* 先试收字距把末行拉上去（行数减1） */
+  for(var k=0.005;k<=orphLs()-LS_SLACK+1e-9;k+=0.0025){li.style.letterSpacing=(-k).toFixed(4)+"em";if(liLines(li)<n){var kk=+(k+LS_SLACK).toFixed(4);li.style.letterSpacing=(-kk).toFixed(4)+"em";fixed++;ols.push([idx,-kk]);return;}}
+  /* 再试放字距把末行填到30%以上（行数不变） */
+  for(var k2=0.005;k2<=orphLs()+1e-9;k2+=0.0025){li.style.letterSpacing=(k2).toFixed(4)+"em";var n2=liLines(li);if(n2>n)break;if(lastLineRatio(li)>=0.3){li.style.letterSpacing=(k2+LS_SLACK).toFixed(4)+"em";var safe=liLines(li)===n;li.style.letterSpacing=(k2).toFixed(4)+"em";if(!safe)break;fixed++;ols.push([idx,+k2.toFixed(4)]);return;}}
+  li.style.letterSpacing="";});L.ols=ols;pvsEl.style.zoom=zs;return fixed;}
+function wrappedRows(){var n=0;pageEl.querySelectorAll(".row,.sub").forEach(function(el){var lh=parseFloat(getComputedStyle(el).lineHeight)||16;if(el.getBoundingClientRect().height>lh*1.6)n++;});return n;}
+/* 所有测量强制在100%缩放下进行：预览缩放会改变换行位置，否则孤行/高度判断与打印不一致 */
+function autofit(target){_fitting=true;pvsEl.style.zoom="1";try{autofitCore(target);}finally{_fitting=false;applyZoom();lineNumsNow();}}
+function autofitCore(target){
+  var d=cur(),L=layoutOf(d),R=FIT_RANGE[state.lang]||FIT_RANGE.en,cap=target*PAGE_H-PRINT_SLACK,sparse=false;/* A4高297mm=1122.5px，PAGE_H取整到1123；再留PRINT_SLACK像素保险：屏幕和打印的分页有细微差别，正好排满时打印会挤出一行 */L.ols=[];L.olsN=-1;L.mvx=0;L._fb=0;
+  /* 第1层：二分t */
+  applyT(L,R,0);
+  if(contentH()>cap){
+    applyT(L,R,1);
+    if(contentH()>cap){
+      /* 第3层：边距锁14mm，字号同比继续缩，无下限 */
+      var lo=0.2,hi=1;for(var i=0;i<14;i++){var k=(lo+hi)/2;applyK(L,R,k);if(contentH()>cap)hi=k;else lo=k;}
+      applyK(L,R,lo);
+    }else{
+      /* 第2层（方案二）：边距候选18→14mm每0.5mm一档，每档在行距间距全紧的前提下二分出能装下的最大字号，
+         算代价 W_FS×字号让步+W_M×边距让步，取最小；再把行距/间距从紧往松放到刚好装下 */
+      var applyMF=function(m,t1,t2){L.fs=+lerpR(R.fs,t2).toFixed(2);L.lh=+lerpR(R.lh,t1).toFixed(3);setGaps(L,lerpR(R.sg,t1),lerpR(R.eg,t1),lerpR(R.bg,t1));L.mv=L.mh=m;updatePreview();};
+      var best=null;
+      for(var m=R.m[1];m>=R.m[0]-1e-9;m-=0.5){m=+m.toFixed(1);
+        applyMF(m,1,0);var t2=0;
+        if(contentH()>cap){applyMF(m,1,1);if(contentH()>cap)continue;var alo=0,ahi=1;for(var j=0;j<10;j++){var a=(alo+ahi)/2;applyMF(m,1,a);if(contentH()>cap)alo=a;else ahi=a;}t2=ahi;}
+        var c=W_FS*t2+W_M*(R.m[1]-m)/(R.m[1]-R.m[0]);
+        window._fitlog=(window._fitlog||[]).concat([[m,L.fs,+c.toFixed(3)]]);if(!best||c<best.c-1e-9)best={m:m,t2:t2,c:c};}
+      if(!best)best={m:R.m[0],t2:1};
+      /* 字号已到上限才把行距/间距往松放；字号还没到上限就保持全紧，让剩余空间留给后面的字号回加（字号优先于行距间距） */
+      var bhi=1;if(best.t2===0){var blo=0;for(var q=0;q<8;q++){var b=(blo+bhi)/2;applyMF(best.m,b,0);if(contentH()>cap)blo=b;else bhi=b;}}
+      applyMF(best.m,bhi,best.t2);
+    }
+  }else{
+    /* 内容少：四边一起加宽到最多18mm */
+    sparse=true;while(L.mv<M_WIDE){L.mv=L.mh=L.mv+1;updatePreview();if(contentH()>cap){L.mv=L.mh=L.mv-1;updatePreview();break;}}
+  }
+  
+  /* 孤行消除第1步：在当前边距-1.5~+2.5mm内按0.25mm试边距（上下=左右），同时字号允许±0.5px微抖（肉眼不可辨），
+     选孤行代价最小、仍一页、且高度不比满页少超过1.5行（不白白丢空间；内容本来就少的简历不设这个限制）的组合；代价相同取更宽的边距、更大的字号 */
+  function orph1(){L.ols=[];updatePreview();var m0=L.mv,f0=L.fs,best={m:m0,f:f0,c:orphanCost()},minH=sparse?0:cap-L.fs*L.lh*1.5;
+    var fj=[0,0.1,0.2,0.3,0.4,0.5,-0.1,-0.2,-0.3,-0.4,-0.5];
+    var mHi=Math.min(M_WIDE,m0+2.5),mLo=Math.max(R.m[0],m0-1.5);
+    for(var m=mHi;m>=mLo-1e-9;m-=0.25){m=+m.toFixed(2);
+      for(var q=0;q<fj.length;q++){var f=+(f0+fj[q]).toFixed(2);if(f<R.fs[0]-1e-9)continue;/* 消孤行不许把字号压到下限以下 */if(m===m0&&f===f0)continue;
+        L.mv=L.mh=m;L.fs=f;setGaps(L,sgR,egR,bgR);updatePreview();var h=contentH();if(h>cap||h<minH)continue;var c=orphanCost();
+        if(c<best.c-1e-6||(Math.abs(c-best.c)<1e-6&&(m>best.m||(m===best.m&&f>best.f))))best={m:m,f:f,c:c};
+        if(best.c<1e-6)break;}
+      if(best.c<1e-6)break;}
+    L.mv=L.mh=best.m;L.fs=best.f;setGaps(L,sgR,egR,bgR);updatePreview();}
+  /* 字号回加：每步0.1px，间距倍数跟着字号走；每步都重做单条字距（否则旧字距在新字号下会多出整行），直到装不下 */
+  var sgR=L.sg/(L.fs*L.lh),egR=L.eg/(L.fs*L.lh),bgR=L.bg/(L.fs*L.lh);
+  /* 折行是离散的：某个字号装不下，再大0.1～0.3px反而可能因为某几行少折一次而装下。所以不在第一次装不下就停，连续REGROW_MISS步都装不下才停，取最后一个装得下的 */
+  var REGROW_MISS=4;
+  function regrow(){var n=0,miss=0,ok={f:L.fs,ols:L.ols,N:L.olsN},f=L.fs;while(f<R.fs[1]-1e-9&&miss<REGROW_MISS){f=+(f+0.1).toFixed(2);L.fs=f;setGaps(L,sgR,egR,bgR);L.ols=[];updatePreview();tightenOrphans(L);updatePreview();if(contentH()>cap){miss++;}else{miss=0;n++;ok={f:f,ols:L.ols,N:L.olsN};}}
+    L.fs=ok.f;L.ols=ok.ols;L.olsN=ok.N;setGaps(L,sgR,egR,bgR);updatePreview();return n;}
+  /* 第1步(边距/字号微调) → 第2步(单条字距按语言上限收上去或推满) 会让高度掉一些；掉出来的空间用字号回加填回，再重做孤行处理，最多3轮 */
+  var L2={fs:L.fs,mv:L.mv,mh:L.mh,lh:L.lh,sg:L.sg,eg:L.eg,bg:L.bg,ols:L.ols,olsN:L.olsN};/* 第2层结果快照，供下面兜底回退 */
+  orph1();
+  for(var rd=0;rd<3;rd++){tightenOrphans(L);updatePreview();if(regrow()===0)break;orph1();}
+  tightenOrphans(L);updatePreview();
+  /* 兜底：孤行处理如果把字号压得比第2层低、还让页底空出超过1.5行，整体退回第2层结果（孤行不处理，字号边距以公式为准） */
+  if(L.fs<L2.fs-1e-9&&cap-contentH()>L.fs*L.lh*1.5){
+    L.fs=L2.fs;L.mv=L2.mv;L.mh=L2.mh;L.lh=L2.lh;L.sg=L2.sg;L.eg=L2.eg;L.bg=L2.bg;L.ols=L2.ols;L.olsN=L2.olsN;L._fb=1;
+    updatePreview();
+  }
+  /* 残余空白 → 上下边距（最多比左右多2mm；加宽会改变折行，溢页就按0.5mm退回直到不溢）→ 条目间距（≤1mm）→ 章节间距（≤1mm） */
+  var left=cap-contentH();if(left>0){var add=Math.min(2,Math.floor(left/PX_PER_MM/2*2)/2);L.mv=+(L.mv+add).toFixed(1);updatePreview();while(contentH()>cap&&L.mv>L.mh+1e-9){L.mv=+(L.mv-0.5).toFixed(1);updatePreview();}}
+  var egCap=L.eg+1*PX_PER_MM;
+  while(L.eg<egCap){L.eg=+(L.eg+0.5).toFixed(1);updatePreview();if(contentH()>cap){L.eg=+(L.eg-0.5).toFixed(1);updatePreview();break;}}
+  var sgCap=L.sg+1*PX_PER_MM;
+  while(L.sg<sgCap){L.sg=+(L.sg+0.5).toFixed(1);updatePreview();if(contentH()>cap){L.sg=+(L.sg-0.5).toFixed(1);updatePreview();break;}}
+  /* 零头空白留在底部：上边距只跟左右边距走（mvTop），不再往页顶挪 */
+  touch();renderEditor();updatePreview();
+}
+/* ================= editor ================= */
+var edEl=document.getElementById("editor");
+function inp(label,val,path,tag){
+  var t=tag==="ta";
+  return '<div class="fld"><label>'+esc(label)+'</label>'+
+    (t?'<textarea data-path="'+path+'" rows="'+(Math.max(2,String(val||"").split("\n").length+1))+'">'+esc(val)+'</textarea>'
+      :'<input data-path="'+path+'" value="'+esc(val)+'">')+'</div>';
+}
+function splitB(b){b=String(b==null?"":b);if(b.charAt(0)==="【"){var k=b.indexOf("】");if(k>0)return {h:b.slice(0,k+1),sep:"",c:b.slice(k+1)};}var m=b.match(/^([^：:\n]{1,60}?)(\s*[：:]\s*)([\s\S]*)$/);return m?{h:m[1],sep:m[2],c:m[3]}:{h:"",sep:null,c:b};}
+function joinB(h,c,sep){h=(h||"").trim();c=c||"";if(!h)return c;if(/^【.*】$/.test(h))sep="";if(sep==null)sep=/[\u4e00-\u9fff]/.test(h)?"：":(state.lang==="fr"?" : ":": ");return h+sep+c;}
+function renderEditor(){
+  var d=cur(),h=[],L=layoutOf(d);
+  h.push('<h3>版面</h3>');
+  h.push('<div class="addrow" style="align-items:center;"><button class="mini" data-act="fit" style="font-weight:bold;background:#6fb3e0;color:#fff;border-color:#6fb3e0;padding:6px 14px;font-size:13px;white-space:nowrap;flex:none;">一页自适应</button><span class="hint" style="margin:0;">恰好一页、四边均衡、无孤行。间距按正文行高的倍数走（章节>条目>bullet）。内容多时依次让步：先收间距/行距，再降字号（11→9pt），最后收边距（18→14mm），再多就同比继续缩，永远排成一页，删不删由你定。</span></span></div>');
+  h.push('<div class="addrow" style="align-items:center;"><span style="font-size:11px;color:#888;">起点风格：</span><button class="mini" data-act="quick" data-q="tight">极紧</button><button class="mini" data-act="quick" data-q="compact">紧凑</button><button class="mini" data-act="quick" data-q="standard">标准</button><button class="mini" data-act="quick" data-q="loose">宽松</button></div>');
+  h.push('<div class="fld"><label>字体（仅ATS安全字体；空=该风格默认）</label><select data-lay-ff="1">'+FONTS.map(function(f){return '<option value="'+esc(f[0])+'"'+((L.ff||"")===f[0]?" selected":"")+'>'+f[1]+'</option>';}).join("")+'</select></div>');
+  h.push('<div class="grid4">');
+  LAYOUT_FIELDS.forEach(function(f){h.push('<div class="fld"><label>'+f[1]+'</label><input type="number" step="'+f[2]+'" data-lay="'+f[0]+'" value="'+L[f[0]]+'"></div>');});
+  h.push('</div>');
+  h.push('<h3>基本信息</h3>');
+  h.push('<div class="namephoto">'+inp("姓名",d.name,"name")+
+    '<div class="fld"><label>照片（右上角，可选）</label><div class="photobox">'+(d.photo?'<img src="'+d.photo+'">':'<span class="noph">无</span>')+
+    '<div><button class="mini" data-act="photo">'+(d.photo?"更换":"上传照片")+'</button>'+(d.photo?' <button class="mini warn" data-act="photodel">移除</button>':'')+'</div></div></div></div>');
+  h.push(inp("副标题（可空，如求职意向/头衔）",d.tagline,"tagline"));
+  h.push('<div class="fld"><label>联系方式（自动用「 | 」拼成一行；有链接就填网址，没有留空）</label>');
+  contactsOf(d).forEach(function(c,ci){
+    h.push('<div class="crow"><input data-path="contacts.'+ci+'.text" placeholder="显示文字" value="'+esc(c.text)+'"><input data-path="contacts.'+ci+'.url" placeholder="https://（可空）" value="'+esc(c.url||"")+'">'+
+      '<button class="mini" data-act="cup" data-ci="'+ci+'">↑</button><button class="mini warn" data-act="cdel" data-ci="'+ci+'">✕</button></div>');
+  });
+  h.push('<button class="mini" data-act="cadd">＋添加一项</button></div>');
+  h.push(inp("个人简述（可空）",d.summary||"","summary","ta"));
+  h.push('<h3>章节</h3><div class="hint">链接写法：[显示文字](https://网址)。条目型=经历/教育（机构+职位+日期+bullets）；文本型=技能/语言等纯列表。每条bullet＝小标题框＋内容框，输出自动拼成「小标题：内容」并加粗小标题。</div>');
+  d.sections.forEach(function(sec,si){
+    h.push('<div class="sec'+(sec.locked?" locked":"")+'"><div class="sechead">');
+    h.push('<input data-path="sections.'+si+'.title" value="'+esc(sec.title)+'">');
+    h.push('<button class="mini" data-act="lock" data-si="'+si+'" title="锁定后不可删除/移动">'+(sec.locked?"🔒":"🔓")+'</button>');
+    if(!sec.locked){
+      h.push('<button class="mini" data-act="secup" data-si="'+si+'">↑</button>');
+      h.push('<button class="mini" data-act="secdn" data-si="'+si+'">↓</button>');
+      h.push('<button class="mini warn" data-act="secdel" data-si="'+si+'">✕</button>');
+    }
+    h.push('</div>');
+    if(sec.type==="entries"){
+      (sec.entries||[]).forEach(function(e,ei){
+        var base="sections."+si+".entries."+ei+".";
+        h.push('<div class="entry"><div class="grid2">');
+        h.push(inp("机构/公司",e.org,base+"org"));
+        h.push(inp("地点",e.loc,base+"loc"));
+        h.push(inp("职位/学位",e.role,base+"role"));
+        h.push(inp("日期",e.dates,base+"dates"));
+        h.push('</div>');
+        h.push('<div class="fld" style="margin-bottom:3px;"><label>bullets（每条＝小标题＋内容；小标题可空，输出时自动加粗拼接）</label></div>');
+        (e.bullets||[]).forEach(function(bt,bi){
+          var sp=splitB(bt),ba=' data-si="'+si+'" data-ei="'+ei+'" data-bi="'+bi+'"';
+          h.push('<div class="brow"><div class="brhead"><input data-b="h"'+ba+' placeholder="小标题（可空）" value="'+esc(sp.h)+'"><span class="lnum" data-bk="'+si+'-'+ei+'-'+bi+'" title="预览里这条占的行数.末行填充率（100%缩放下测）"></span>'+
+            '<button class="mini" data-act="bup"'+ba+'>↑</button><button class="mini" data-act="bdn"'+ba+'>↓</button><button class="mini warn" data-act="bdel"'+ba+'>✕</button></div>'+
+            '<textarea data-b="c"'+ba+' rows="'+Math.max(2,Math.ceil(String(sp.c).length/52))+'" placeholder="具体内容">'+esc(sp.c)+'</textarea></div>');
+        });
+        h.push('<button class="mini" data-act="badd" data-si="'+si+'" data-ei="'+ei+'">＋加一条bullet</button>');
+        h.push('<div class="ebtns">');
+        h.push('<button class="mini" data-act="eup" data-si="'+si+'" data-ei="'+ei+'">↑</button>');
+        h.push('<button class="mini" data-act="edn" data-si="'+si+'" data-ei="'+ei+'">↓</button>');
+        h.push('<button class="mini warn" data-act="edel" data-si="'+si+'" data-ei="'+ei+'">删除条目</button>');
+        h.push('</div></div>');
+      });
+      h.push('<button class="mini" data-act="eadd" data-si="'+si+'">＋添加条目</button>');
+    }else{
+      h.push(inp("内容（一行一条）",(sec.lines||[]).join("\n"),"sections."+si+".lines","ta"));
+    }
+    h.push('</div>');
+  });
+  h.push('<div class="addrow"><button class="mini" data-act="secadd" data-t="entries">＋条目型章节</button><button class="mini" data-act="secadd" data-t="text">＋文本型章节</button></div>');
+  edEl.innerHTML=h.join("");
+}
+function setPath(obj,path,val){
+  var ps=path.split("."),o=obj;
+  for(var i=0;i<ps.length-1;i++)o=o[ps[i]];
+  var last=ps[ps.length-1];
+  if(last==="bullets"||last==="lines")o[last]=val.split("\n");
+  else o[last]=val;
+}
+edEl.addEventListener("change",function(ev){
+  if(ev.target.getAttribute("data-lay-ff")){layoutOf(cur()).ff=ev.target.value;touch();updatePreview();}
+});
+edEl.addEventListener("input",function(ev){
+  var lk=ev.target.getAttribute("data-lay");
+  if(lk){var v=parseFloat(ev.target.value);if(!isNaN(v)){layoutOf(cur())[lk]=v;updatePreview();}return;}
+  var bp=ev.target.getAttribute("data-b");
+  if(bp){var e=cur().sections[+ev.target.getAttribute("data-si")].entries[+ev.target.getAttribute("data-ei")];
+    var bi=+ev.target.getAttribute("data-bi"),sp=splitB(e.bullets[bi]);sp[bp]=ev.target.value;e.bullets[bi]=joinB(sp.h,sp.c,sp.sep);
+    touch();updatePreview();renderVers();return;}
+  var p=ev.target.getAttribute("data-path");
+  if(!p)return;setPath(cur(),p,ev.target.value);touch();updatePreview();renderVers();
+});
+edEl.addEventListener("click",function(ev){
+  var b=ev.target.closest("button");if(!b)return;
+  var act=b.getAttribute("data-act");if(!act)return;
+  var d=cur(),si=+b.getAttribute("data-si"),ei=+b.getAttribute("data-ei");
+  function swap(a,i,j){if(j<0||j>=a.length)return;var t=a[i];a[i]=a[j];a[j]=t;}
+  var ci=+b.getAttribute("data-ci");
+  if(act==="cadd")contactsOf(d).push({text:"",url:""});
+  if(act==="cdel")contactsOf(d).splice(ci,1);
+  if(act==="cup")swap(contactsOf(d),ci,ci-1);
+  if(act==="photo"){document.getElementById("filePhoto").click();return;}
+  if(act==="photodel"){delete d.photo;touch();}
+  if(act==="fit"){autofit(1);return;}
+  if(act==="quick"){var ph=layoutOf(d).ph,phm=layoutOf(d).phm;d.layout=Object.assign({},LAYOUT_QUICK[b.getAttribute("data-q")]);d.layout.ph=ph;d.layout.phm=phm;}
+  if(act==="lock")d.sections[si].locked=!d.sections[si].locked;
+  if(act==="secadd")d.sections.push(b.getAttribute("data-t")==="text"?{title:"新章节",type:"text",lines:[]}:{title:"新章节",type:"entries",entries:[{org:"",loc:"",role:"",dates:"",bullets:[]}]});
+  if(act==="secdel"){if(!confirm("删除章节「"+d.sections[si].title+"」？"))return;d.sections.splice(si,1);}
+  if(act==="secup")swap(d.sections,si,si-1);
+  if(act==="secdn")swap(d.sections,si,si+1);
+  if(act==="eadd")d.sections[si].entries.push({org:"",loc:"",role:"",dates:"",bullets:[]});
+  if(act==="edel"){if(!confirm("删除该条目？"))return;d.sections[si].entries.splice(ei,1);}
+  var bi=+b.getAttribute("data-bi");
+  if(act==="badd")(d.sections[si].entries[ei].bullets=d.sections[si].entries[ei].bullets||[]).push("");
+  if(act==="bdel")d.sections[si].entries[ei].bullets.splice(bi,1);
+  if(act==="bup")swap(d.sections[si].entries[ei].bullets,bi,bi-1);
+  if(act==="bdn")swap(d.sections[si].entries[ei].bullets,bi,bi+1);
+  if(act==="eup")swap(d.sections[si].entries,ei,ei-1);
+  if(act==="edn")swap(d.sections[si].entries,ei,ei+1);
+  renderEditor();updatePreview();
+});
+
+document.getElementById("filePhoto").addEventListener("change",function(){
+  var f=this.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){var img=new Image();img.onload=function(){
+    var W=300,H=420,c=document.createElement("canvas");c.width=W;c.height=H;var x=c.getContext("2d");
+    var r=Math.max(W/img.width,H/img.height),w=img.width*r,hh=img.height*r;
+    x.fillStyle="#fff";x.fillRect(0,0,W,H);x.drawImage(img,(W-w)/2,(H-hh)/2,w,hh);
+    cur().photo=c.toDataURL("image/jpeg",0.85);touch();renderEditor();updatePreview();
+  };img.src=rd.result;};
+  rd.readAsDataURL(f);this.value="";
+});
+/* ================= tabs & preset ================= */
+function renderVers(){
+  var sel=document.getElementById("verSel"),b=langBox();
+  function d8(t){if(!t)return "";var d=new Date(t);return " · "+(d.getMonth()+1)+"/"+d.getDate();}
+  sel.innerHTML=verList().map(function(v){return '<option value="'+esc(v)+'"'+(v===b.active?" selected":"")+'>'+esc(v)+d8(b.versions[v]._ts)+'</option>';}).join("");
+  sel.title="版本："+verList().length+"个，均已自动保存";
+}
+document.getElementById("verSel").addEventListener("change",function(){langBox().active=this.value;renderEditor();updatePreview();});
+var VER_ACT={};
+VER_ACT.new=function(){
+  var n=prompt("新版本名称（如 AI / Analyste / 投行版）：","");if(!n)return;n=n.trim();
+  if(langBox().versions[n]){alert("已有同名版本");return;}
+  var cp=JSON.parse(JSON.stringify(cur()));cp._ts=Date.now();langBox().versions[n]=cp;langBox().active=n;renderVers();renderEditor();updatePreview();
+};
+VER_ACT.ren=function(){
+  var b=langBox(),n=prompt("新名称：",b.active);if(!n||n===b.active)return;n=n.trim();
+  if(b.versions[n]){alert("已有同名版本");return;}
+  b.versions[n]=b.versions[b.active];delete b.versions[b.active];(b._del=b._del||[]).push(b.active);b.active=n;renderVers();updatePreview();
+};
+VER_ACT.del=function(){
+  var b=langBox();if(verList().length<=1){alert("至少保留一个版本");return;}
+  if(!confirm("删除版本「"+b.active+"」？不可恢复（建议先备份JSON）"))return;
+  delete b.versions[b.active];(b._del=b._del||[]).push(b.active);b.active=verList()[0];renderVers();renderEditor();updatePreview();
+};
+/* 通用下拉菜单：点按钮开合，点选项触发，点外面关闭 */
+function ddInit(id,fn){var dd=document.getElementById(id);dd.querySelector(".ddb").addEventListener("click",function(ev){ev.stopPropagation();var o=dd.classList.contains("open");document.querySelectorAll(".dd.open").forEach(function(x){x.classList.remove("open");});if(!o)dd.classList.add("open");});
+  dd.querySelector(".ddm").addEventListener("click",function(ev){var it=ev.target.closest("[data-v]");if(!it)return;dd.classList.remove("open");fn(it.getAttribute("data-v"));});}
+document.addEventListener("click",function(){document.querySelectorAll(".dd.open").forEach(function(x){x.classList.remove("open");});});
+ddInit("verAct",function(v){if(VER_ACT[v])VER_ACT[v]();});
+function renderTabs(){
+  var el=document.getElementById("langTabs");
+  el.innerHTML=LANGS.map(function(l){return '<button data-lang="'+l.id+'" class="'+(state.lang===l.id?"on":"")+'">'+l.label+'</button>';}).join("");
+}
+document.getElementById("langTabs").addEventListener("click",function(ev){
+  var b=ev.target.closest("button");if(!b)return;
+  state.lang=b.getAttribute("data-lang");renderTabs();renderVers();renderEditor();updatePreview();
+});
+document.getElementById("presetSel").addEventListener("change",function(){
+  state.presets[state.lang]=this.value;updatePreview();
+});
+
+/* ================= export ================= */
+function fileStem(){return (cur().name||"resume").split(" ").join("_")+"_CV_"+state.lang.toUpperCase()+"_"+langBox().active;}
+document.getElementById("btnPdf").addEventListener("click",function(){var t=document.title;document.title=fileStem();window.print();setTimeout(function(){document.title=t;},2000);});
+ddInit("expAct",function(v){
+  if(v==="pdf_a4"||v==="pdf_long"){state.pdfMode=(v==="pdf_long"?"long":"a4");updatePreview();setTimeout(function(){document.getElementById("btnPdf").click();},60);}
+  else if(v==="word"){document.getElementById("btnWord").click();}
+  else if(v==="json"){var one={_one:1,lang:state.lang,preset:curPreset(),name:langBox().active,doc:cur()};var blob=new Blob([JSON.stringify(one,null,2)],{type:"application/json"});dl(blob,fileStem()+".json");}
+  else if(v==="json_all"){var blob2=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});dl(blob2,"resume_backup_all_"+new Date().toISOString().slice(0,10)+".json");}
+});
+document.getElementById("btnImport").addEventListener("click",function(){document.getElementById("fileImport").click();});
+document.getElementById("fileImport").addEventListener("change",function(){
+  var f=this.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){try{var s=JSON.parse(rd.result);
+    if(s._one&&s.doc){/* 单版本文件：导入到对应语言，同名则加后缀 */
+      var lg=state.docs[s.lang]?s.lang:state.lang,box=state.docs[lg],nm=s.name||"导入",base=nm,i=2;while(box.versions[nm])nm=base+"·导入"+(i++);
+      s.doc._ts=Date.now();box.versions[nm]=s.doc;box.active=nm;state.lang=lg;if(s.preset&&LANG_PRESETS[lg].indexOf(s.preset)>=0)state.presets[lg]=s.preset;
+      save();renderTabs();renderVers();renderEditor();updatePreview();alert("已导入为 "+(lg.toUpperCase())+"/"+nm);return;}
+    if(!s.docs)throw 0;state=s;save();renderTabs();renderVers();renderEditor();updatePreview();alert("导入成功（全部数据已替换）");}catch(e){alert("JSON格式不对，导入失败");}};
+  rd.readAsText(f);this.value="";
+});
+function dl(blob,fname){
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fname;
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
+}
+var WORD_CSS={
+ fin:'body{font-family:"Times New Roman",Times,serif;color:#111;font-size:10.5pt;line-height:1.35;} .name{text-align:center;font-size:16pt;font-weight:bold;letter-spacing:.3pt;} .tagline{text-align:center;font-size:10.5pt;color:#333;} .contact{text-align:center;font-size:9.5pt;} h2{font-size:10.5pt;letter-spacing:.3pt;text-transform:uppercase;border-bottom:1pt solid #111;padding-bottom:1pt;margin:14pt 0 5pt;} .w-rowl{font-weight:bold;} .w-rowr{font-style:italic;} .w-subl,.w-subr{font-style:italic;}',
+ tech:'body{font-family:Calibri,Arial,sans-serif;color:#1a1a1a;font-size:10.5pt;line-height:1.38;} .name{font-size:18pt;font-weight:bold;} .tagline{color:#555;} .contact{font-size:9.5pt;color:#444;} h2{font-size:12pt;color:#0b57a4;text-transform:uppercase;letter-spacing:.3pt;border-bottom:1.2pt solid #0b57a4;padding-bottom:1pt;margin:13pt 0 4pt;} .w-rowl{font-weight:bold;} .w-rowr{color:#555;}',
+ cn2:'body{font-family:"Microsoft YaHei",SimHei,sans-serif;color:#111;font-size:10.5pt;line-height:1.5;} .name{font-size:16pt;font-weight:bold;color:#284967;} .contact{font-size:10pt;color:#444;} h2{font-size:12pt;font-weight:bold;color:#284967;border-bottom:1.2pt solid #284967;padding-bottom:1pt;margin:12pt 0 4pt;} .w-rowl{font-weight:bold;} .w-rowr{color:#555;font-size:9.5pt;}',
+ cn:'body{font-family:"Microsoft YaHei",SimHei,sans-serif;color:#111;font-size:10.5pt;line-height:1.5;} .name{font-size:16pt;font-weight:bold;text-align:center;} .contact{font-size:10pt;color:#111;text-align:center;} h2{font-size:12pt;font-weight:bold;color:#1f3a5f;background:#e9eff6;border-left:3pt solid #1f3a5f;padding:2pt 6pt;margin:11pt 0 4pt;} .w-rowl{font-weight:bold;} .w-rowr{color:#444;}',
+ fr2:'body{font-family:Arial,Helvetica,sans-serif;color:#222;font-size:10.5pt;line-height:1.4;} .name{font-size:16pt;font-weight:bold;color:#1f3a5f;} .tagline{font-weight:bold;color:#1f3a5f;} .contact{font-size:9.5pt;color:#444;} h2{font-size:11pt;text-transform:uppercase;letter-spacing:.4pt;color:#1f3a5f;background:#e9eef5;padding:2pt 5pt;margin:13pt 0 5pt;} .w-dt{color:#1f3a5f;font-weight:bold;font-size:9pt;} .w-dm{color:#666;font-weight:normal;font-size:8.5pt;} ul{margin-left:54pt;} .lb{color:#1f3a5f;}',
+ fr3:'body{font-family:Arial,Helvetica,sans-serif;color:#222;font-size:10.5pt;line-height:1.4;} .name{font-size:16pt;font-weight:bold;color:#3d3d3d;} .tagline{font-weight:bold;color:#3d3d3d;} .contact{font-size:9.5pt;color:#444;} h2{font-size:11pt;text-transform:uppercase;letter-spacing:.4pt;color:#fff;background:#3d3d3d;padding:2pt 5pt;margin:13pt 0 5pt;} .w-dt{color:#3d3d3d;font-weight:bold;font-size:9pt;} .w-dm{color:#666;font-weight:normal;font-size:8.5pt;} ul{margin-left:54pt;} .lb{color:#3d3d3d;}',
+ en0:'.w-rowl,.w-rowr{font-weight:normal;} .w-rowr{color:#444;} ul{list-style:disc;padding-left:14pt;} li:before{content:none;} .name{color:#1f3a5f;} h2{color:#1f3a5f;border-bottom:1.5pt solid #1f3a5f;} a{color:#1f3a5f;}',cn0:'.w-rowl,.w-rowr{font-weight:normal;} .w-rowr{color:#444;} ul{list-style:disc;padding-left:14pt;} li:before{content:none;}',fr0:'.w-rowl,.w-rowr{font-weight:normal;} .w-rowr{color:#444;} ul{list-style:disc;padding-left:14pt;} li:before{content:none;} .name{color:#1f3a5f;} h2{color:#1f3a5f;border-bottom:1.5pt solid #1f3a5f;} a{color:#1f3a5f;}',
+ en4:'body{font-family:Arial,Helvetica,sans-serif;color:#222;font-size:10.5pt;line-height:1.4;} .name{font-size:16pt;font-weight:bold;color:#1f3a5f;} .tagline{font-weight:bold;color:#1f3a5f;} .contact{font-size:9.5pt;color:#444;} h2{font-size:11pt;text-transform:uppercase;letter-spacing:.4pt;color:#1f3a5f;background:#e9eef5;padding:2pt 5pt;margin:13pt 0 5pt;} .w-dt{color:#1f3a5f;font-weight:bold;font-size:9pt;} .w-dm{color:#666;font-weight:normal;font-size:8.5pt;} ul{margin-left:54pt;} .lb{color:#1f3a5f;}',
+ fr:'body{font-family:Calibri,Arial,sans-serif;color:#111;font-size:10.5pt;line-height:1.4;} .name{font-size:16pt;font-weight:bold;} .tagline{font-size:11pt;color:#555;} .contact{font-size:9.5pt;color:#444;} h2{font-size:10.5pt;text-transform:uppercase;letter-spacing:.3pt;border-bottom:1pt solid #111;padding-bottom:1pt;margin:13pt 0 5pt;} .w-rowl{font-weight:bold;} .w-rowr{color:#555;}'
+};
+function wordHtml(){
+  var p=curPreset(),d=cur();
+  var L=layoutOf(d);var mv=L.mv+"mm",mh=L.mh+"mm";var fpt=(L.fs*0.75).toFixed(1)+"pt";
+  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'+
+   '<head><meta charset="utf-8"><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml>'+
+   '<style>@page WordSection1{size:210mm 297mm;margin:'+mv+' '+mh+' '+mv+' '+mh+';mso-header-margin:0;mso-footer-margin:0;} div.WordSection1{page:WordSection1;} '+
+   'table{font-size:inherit;} ul{margin:2pt 0 '+(L.eg*0.75)+'pt;padding-left:16pt;} li{margin-bottom:'+(L.bg*0.75)+'pt;} .lb{font-weight:bold;} '+(CLASSIC[p]?WORD_CSS.cn+' .lbk{font-weight:normal;} ul{list-style:none;padding-left:0;} li:before{content:"● ";} '+(WORD_CSS[p]||''):WORD_CSS[p])+
+   ' body{font-size:'+fpt+'!important;line-height:'+L.lh+'!important;'+'font-family:'+effFont(L,p,state.lang)+'!important;'+'} h2{margin-top:'+(L.sg*0.75)+'pt!important;} .contact{margin-top:5pt!important;} .tagline+.contact{margin-top:2.5pt!important;} .name{font-size:'+(L.fs*0.75*1.6).toFixed(1)+'pt!important;}</style></head>'+
+   '<body><div class="WordSection1">'+renderDoc(d,p,true)+'</div></body></html>';
+  return html;}
+document.getElementById("btnWord").addEventListener("click",function(){
+  var blob=new Blob(["\ufeff",wordHtml()],{type:"application/msword"});
+  dl(blob,fileStem()+".doc");
+});
+
+/* ================= boot ================= */
+renderTabs();renderVers();renderEditor();updatePreview();
+</script>
+</body>
+</html>
